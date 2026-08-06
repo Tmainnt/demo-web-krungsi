@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RiskRunway AI — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-0:#0A0F24;
+    --navy-1:#121A38;
+    --navy-2:#1B2550;
+    --amber:#FFB454;
+    --amber-dim:#7A5A2E;
+    --green:#43D9A3;
+    --coral:#FF6B6B;
+    --surface:#F5F6FB;
+    --surface-alt:#EBEDF7;
+    --card:#FFFFFF;
+    --ink:#12162B;
+    --ink-soft:#5B6178;
+    --border:#E1E3F0;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:var(--font-body);
+    background:var(--surface);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit; cursor:pointer;}
+  ::selection{background:var(--amber); color:var(--navy-0);}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    height:64px;
+    background:var(--navy-0);
+    display:flex;
+    align-items:center;
+    padding:0 24px;
+    gap:24px;
+    position:sticky; top:0; z-index:50;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:18px;
+    color:#fff;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+  }
+  .brand .mark{
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, var(--amber), #FF8A4C);
+    border-radius:8px;
+    font-size:15px;
+    transform:rotate(-8deg);
+  }
+  .app-switch{
+    display:flex;
+    background:var(--navy-1);
+    border-radius:8px;
+    padding:3px;
+    gap:2px;
+  }
+  .app-switch button{
+    border:none;
+    background:transparent;
+    color:rgba(255,255,255,0.55);
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:8px 16px;
+    border-radius:6px;
+    transition:all .15s ease;
+  }
+  .app-switch button.active{
+    background:var(--amber);
+    color:var(--navy-0);
+    font-weight:600;
+  }
+  .topbar-right{
+    margin-left:auto;
+    display:flex; align-items:center; gap:16px;
+  }
+  .consent-pill{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.05em;
+    color:var(--green);
+    background:rgba(67,217,163,0.1);
+    border:1px solid rgba(67,217,163,0.35);
+    padding:5px 10px;
+    border-radius:20px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .consent-pill::before{
+    content:'';
+    width:6px; height:6px; border-radius:50%;
+    background:var(--green);
+  }
+  .user-chip{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:var(--navy-2);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:600;
+    font-family:var(--font-display);
+  }
+
+  /* ---------- Shell ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    min-height:calc(100vh - 64px);
+  }
+  .sidebar{
+    background:var(--navy-0);
+    padding:20px 12px;
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  .sidebar .eyebrow{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.12em;
+    color:rgba(255,255,255,0.35);
+    padding:0 12px;
+    margin-bottom:10px;
+    text-transform:uppercase;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:10px;
+    width:100%;
+    text-align:left;
+    padding:10px 12px;
+    border:none;
+    background:transparent;
+    color:rgba(255,255,255,0.65);
+    border-radius:8px;
+    font-size:13.5px;
+    margin-bottom:2px;
+    transition:all .15s ease;
+    position:relative;
+  }
+  .nav-item .ic{
+    width:18px; height:18px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.05); color:#fff;}
+  .nav-item.active{
+    background:var(--navy-2);
+    color:#fff;
+    font-weight:600;
+  }
+  .nav-item.active::before{
+    content:'';
+    position:absolute; left:-12px; top:8px; bottom:8px; width:3px;
+    background:var(--amber);
+    border-radius:0 3px 3px 0;
+  }
+  .nav-badge{
+    margin-left:auto;
+    background:var(--coral);
+    color:#fff;
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    padding:1px 6px;
+    border-radius:10px;
+    font-weight:600;
+  }
+
+  /* ---------- Main ---------- */
+  .main{
+    padding:28px 32px 60px;
+    max-width:1180px;
+  }
+  .page{display:none;}
+  .page.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .page-head{margin-bottom:24px;}
+  .page-head h1{
+    font-family:var(--font-display);
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .page-head p{color:var(--ink-soft); font-size:13.5px;}
+
+  .grid{display:grid; gap:16px;}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+  }
+  .card-title{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-bottom:10px;
+  }
+  .stat-num{
+    font-family:var(--font-mono);
+    font-size:32px;
+    font-weight:600;
+    color:var(--navy-1);
+  }
+  .stat-sub{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11px; font-weight:600;
+    padding:3px 9px;
+    border-radius:20px;
+  }
+  .badge.green{background:rgba(67,217,163,0.12); color:#1D9C74;}
+  .badge.amber{background:rgba(255,180,84,0.15); color:#B57216;}
+  .badge.coral{background:rgba(255,107,107,0.12); color:#D4453C;}
+  .badge.navy{background:var(--surface-alt); color:var(--navy-1);}
+
+  table{width:100%; border-collapse:collapse;}
+  th{
+    text-align:left; font-size:11px; text-transform:uppercase;
+    letter-spacing:0.04em; color:var(--ink-soft);
+    padding:10px 12px; border-bottom:1px solid var(--border);
+    font-weight:600;
+  }
+  td{padding:13px 12px; border-bottom:1px solid var(--border); font-size:13.5px;}
+  tr:last-child td{border-bottom:none;}
+  tr.row-click{cursor:pointer; transition:background .12s ease;}
+  tr.row-click:hover{background:var(--surface-alt);}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:9px 16px;
+    border-radius:8px;
+    border:none;
+    font-size:13px;
+    font-weight:600;
+  }
+  .btn-primary{background:var(--navy-0); color:#fff;}
+  .btn-primary:hover{background:var(--navy-1);}
+  .btn-amber{background:var(--amber); color:var(--navy-0);}
+  .btn-ghost{background:var(--surface-alt); color:var(--ink);}
+  .btn-sm{padding:6px 12px; font-size:12px;}
+
+  .list-row{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .list-row:last-child{border-bottom:none;}
+
+  /* ---------- Runway Gauge (signature element) ---------- */
+  .runway-gauge{
+    background:linear-gradient(180deg, var(--navy-0), var(--navy-2));
+    border-radius:14px;
+    padding:24px 26px;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+  }
+  .runway-gauge::after{
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(90deg, transparent, transparent 38px, rgba(255,255,255,0.025) 38px, rgba(255,255,255,0.025) 40px);
+    pointer-events:none;
+  }
+  .runway-label{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.45);
+    margin-bottom:6px;
+  }
+  .runway-readout{
+    font-family:var(--font-mono);
+    font-size:44px;
+    font-weight:600;
+    line-height:1;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .runway-readout .unit{font-size:15px; color:rgba(255,255,255,0.55); font-weight:500;}
+  .runway-track{
+    position:relative;
+    height:34px;
+    background:rgba(255,255,255,0.06);
+    border-radius:6px;
+    margin-bottom:8px;
+    overflow:visible;
+  }
+  .runway-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    border-radius:6px;
+    transition:width .6s cubic-bezier(.4,0,.2,1), background .6s ease;
+  }
+  .runway-lights{
+    position:absolute; inset:0;
+    display:flex; align-items:center;
+    padding:0 2px;
+    gap:3px;
+  }
+  .runway-lights span{
+    flex:1; height:3px; background:rgba(255,255,255,0.18); border-radius:2px;
+  }
+  .runway-plane{
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    font-size:18px;
+    transition:left .6s cubic-bezier(.4,0,.2,1);
+    filter:drop-shadow(0 0 6px rgba(0,0,0,0.4));
+  }
+  .runway-scale{
+    display:flex; justify-content:space-between;
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:rgba(255,255,255,0.35);
+    margin-top:6px;
+  }
+
+  /* ---------- Flags ---------- */
+  .flag-row{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    background:var(--surface-alt);
+    border-radius:8px;
+    margin-bottom:8px;
+    font-size:13px;
+  }
+  .flag-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+
+  /* ---------- Chat page ---------- */
+  .chat-layout{display:grid; grid-template-columns:340px 1fr; gap:16px; height:560px;}
+  .chat-panel{background:var(--card); border:1px solid var(--border); border-radius:12px; display:flex; flex-direction:column; overflow:hidden;}
+  .chat-head{padding:14px 16px; border-bottom:1px solid var(--border); font-weight:600; font-size:13.5px;}
+  .chat-body{flex:1; padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;}
+  .bubble{max-width:85%; padding:10px 13px; border-radius:12px; font-size:12.8px; line-height:1.5;}
+  .bubble.broker{align-self:flex-end; background:var(--navy-0); color:#fff; border-bottom-right-radius:3px;}
+  .bubble.system{align-self:flex-start; background:var(--surface-alt); color:var(--ink); border-bottom-left-radius:3px;}
+  .chat-templates{padding:12px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:6px;}
+  .chat-input-row{padding:12px; border-top:1px solid var(--border); display:flex; gap:8px;}
+  .chat-input-row input{
+    flex:1; border:1.5px solid var(--border); border-radius:8px; padding:10px 13px;
+    font-size:13px; font-family:inherit; color:var(--ink);
+  }
+  .chat-input-row input:focus{outline:none; border-color:var(--amber);}
+  .tpl-btn{
+    text-align:left; background:var(--surface-alt); border:none; border-radius:8px;
+    padding:9px 12px; font-size:12px; color:var(--ink);
+  }
+  .tpl-btn:hover{background:#E1E4F5;}
+  .canvas-panel{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; overflow-y:auto;}
+  .chip-grid{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;}
+  .data-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1.5px solid var(--border); background:var(--card);
+    border-radius:20px; padding:8px 14px; font-size:12px; font-weight:600;
+    color:var(--ink); font-family:inherit;
+  }
+  .data-chip:hover{border-color:var(--amber);}
+  .data-chip.selected{background:var(--navy-0); color:#fff; border-color:var(--navy-0);}
+  .data-chip .chip-detail{font-weight:400; opacity:0.65; font-size:10.5px;}
+  .canvas-divider{height:1px; background:var(--border); margin:18px 0;}
+  .compare-bars{display:flex; gap:28px; justify-content:center; padding:6px 0 4px;}
+  .compare-col{display:flex; flex-direction:column; align-items:center; width:90px;}
+  .compare-bar-track{
+    width:100%; height:140px; background:var(--surface-alt); border-radius:8px;
+    display:flex; align-items:flex-end; overflow:hidden;
+  }
+  .compare-bar-fill{width:100%; border-radius:8px 8px 0 0; transition:height .5s cubic-bezier(.4,0,.2,1);}
+  .compare-bar-fill.before{background:linear-gradient(180deg, var(--amber), #FF8A4C);}
+  .compare-bar-fill.after{background:linear-gradient(180deg, var(--green), #23B98A);}
+  .compare-num{font-family:var(--font-mono); font-size:20px; font-weight:600; margin-top:10px; color:var(--navy-1);}
+  .compare-label{font-size:11px; color:var(--ink-soft); margin-top:2px; text-align:center;}
+  .canvas-chart{flex:1; display:flex; align-items:flex-end; gap:10px; padding:10px 4px 0; min-height:180px;}
+  .bar{flex:1; background:linear-gradient(180deg, var(--amber), #FF8A4C); border-radius:6px 6px 0 0; position:relative;}
+  .bar-label{position:absolute; bottom:-22px; left:0; right:0; text-align:center; font-size:10.5px; color:var(--ink-soft); font-family:var(--font-mono);}
+  .llm-summary{
+    margin-top:34px; background:var(--surface-alt); border-radius:10px; padding:14px 16px;
+    font-size:12.8px; line-height:1.6; color:var(--ink);
+    border-left:3px solid var(--amber);
+  }
+  .llm-summary b{color:var(--navy-1);}
+
+  /* ---------- FAQ ---------- */
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{
+    width:100%; text-align:left; background:none; border:none; padding:16px 4px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:14px; font-weight:600;
+  }
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .25s ease; font-size:13px; color:var(--ink-soft); line-height:1.6;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+  .faq-chev{transition:transform .2s ease; color:var(--ink-soft);}
+  .faq-item.open .faq-chev{transform:rotate(45deg); color:var(--amber);}
+
+  /* ---------- Timeline ---------- */
+  .tl-item{display:flex; gap:16px; margin-bottom:6px;}
+  .tl-rail{display:flex; flex-direction:column; align-items:center;}
+  .tl-dot{width:34px; height:34px; border-radius:50%; background:var(--navy-0); color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;}
+  .tl-line{width:2px; flex:1; background:var(--border); margin:4px 0;}
+  .tl-content{padding-bottom:26px;}
+  .tl-content h4{font-size:14px; margin-bottom:3px;}
+  .tl-content p{font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    display:none; position:fixed; inset:0; background:rgba(10,15,36,0.55);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:#fff; border-radius:14px; width:100%; max-width:560px;
+    max-height:85vh; overflow-y:auto; padding:26px;
+  }
+  .modal-close{float:right; background:var(--surface-alt); border:none; width:28px; height:28px; border-radius:50%; font-size:14px;}
+
+  .empty-note{
+    font-size:12px; color:var(--ink-soft); background:var(--surface-alt);
+    padding:10px 14px; border-radius:8px; margin-top:16px;
+  }
+
+  .scenario-btns{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+  .scenario-btn{
+    background:var(--card); border:1.5px solid var(--border); border-radius:10px;
+    padding:12px 16px; font-size:12.5px; font-weight:600; color:var(--ink); text-align:left;
+    flex:1; min-width:160px;
+  }
+  .scenario-btn small{display:block; font-weight:400; color:var(--ink-soft); margin-top:3px; font-size:11px;}
+  .scenario-btn.active{border-color:var(--amber); background:rgba(255,180,84,0.08);}
+
+  /* ---------- Auth screens ---------- */
+  .auth-screen{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,180,84,0.10), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(67,217,163,0.08), transparent 45%),
+      linear-gradient(180deg, var(--navy-0), #060916);
+    padding:24px;
+  }
+  .auth-card{
+    background:#fff;
+    border-radius:16px;
+    width:100%; max-width:400px;
+    padding:36px 32px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .auth-card h2{
+    font-family:var(--font-display);
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .auth-sub{font-size:12.5px; color:var(--ink-soft); margin-bottom:22px;}
+  .auth-card label{
+    display:block; font-size:11.5px; font-weight:600; color:var(--ink-soft);
+    margin-bottom:6px; margin-top:14px;
+    text-transform:uppercase; letter-spacing:0.03em;
+  }
+  .auth-card label:first-of-type{margin-top:0;}
+  .auth-card input, .auth-card select{
+    width:100%;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    padding:11px 13px;
+    font-size:13.5px;
+    font-family:inherit;
+    color:var(--ink);
+    background:var(--surface);
+    transition:border-color .15s ease;
+  }
+  .auth-card input:focus, .auth-card select:focus{
+    outline:none; border-color:var(--amber); background:#fff;
+  }
+  .auth-switch{
+    text-align:center; font-size:12.5px; color:var(--ink-soft); margin-top:20px;
+  }
+  .auth-switch a{
+    color:var(--amber-dim); font-weight:700; cursor:pointer; text-decoration:none;
+    color:#B57216;
+  }
+  .auth-switch a:hover{text-decoration:underline;}
+  .auth-role{
+    display:flex; gap:8px; margin-top:6px;
+  }
+  .auth-role label.chip{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    border:1.5px solid var(--border); border-radius:8px; padding:9px; font-size:12.5px;
+    font-weight:600; text-transform:none; letter-spacing:0; color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .auth-role input{width:auto; display:none;}
+  .auth-role input:checked + span{color:var(--navy-0);}
+  .auth-role label.chip:has(input:checked){border-color:var(--amber); background:rgba(255,180,84,0.1); color:var(--navy-0);}
+
+  /* ---------- Profile page ---------- */
+  .profile-avatar{
+    width:72px; height:72px; border-radius:50%;
+    background:linear-gradient(135deg, var(--navy-0), var(--navy-2));
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:26px; font-weight:700;
+    margin-bottom:14px;
+  }
+  .profile-field{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; border-bottom:1px solid var(--border); font-size:13.5px;
+  }
+  .profile-field:last-child{border-bottom:none;}
+  .profile-field span.k{color:var(--ink-soft);}
+
+  /* ---------- Diary / Notes (Broker) ---------- */
+  .diary-layout{display:grid; grid-template-columns:230px 1fr; gap:16px; align-items:start;}
+  .diary-list{padding:10px;}
+  .diary-cust-btn{
+    display:flex; justify-content:space-between; align-items:center; gap:6px;
+    width:100%; text-align:left; padding:10px 12px; border:none; background:transparent;
+    border-radius:8px; font-size:12.8px; color:var(--ink); margin-bottom:2px;
+  }
+  .diary-cust-btn:hover{background:var(--surface-alt);}
+  .diary-cust-btn.active{background:var(--surface-alt); font-weight:700;}
+  .diary-count{
+    font-family:var(--font-mono); font-size:10px; color:var(--ink-soft);
+    background:var(--surface); padding:1px 7px; border-radius:10px; flex-shrink:0;
+  }
+  .diary-notes{padding:22px;}
+  .diary-entry{padding:13px 0; border-bottom:1px solid var(--border);}
+  .diary-entry:last-child{border-bottom:none;}
+  .diary-date{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-soft); margin-bottom:5px; letter-spacing:0.03em;}
+  .diary-text{font-size:13.3px; line-height:1.65;}
+  .diary-add{margin-top:18px; padding-top:16px; border-top:1px dashed var(--border);}
+  .diary-add textarea{
+    width:100%; border:1.5px solid var(--border); border-radius:8px; padding:11px 13px;
+    font-family:inherit; font-size:13px; min-height:78px; resize:vertical; margin-bottom:10px;
+  }
+  .diary-add textarea:focus{outline:none; border-color:var(--amber);}
+  .diary-entry-head{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:3px;}
+  .diary-actions{display:flex; gap:4px; flex-shrink:0;}
+  .diary-action-btn{
+    background:none; border:none; font-family:var(--font-body); font-size:11px; font-weight:700;
+    color:var(--ink-soft); padding:3px 8px; border-radius:6px;
+  }
+  .diary-action-btn:hover{background:var(--surface-alt); color:var(--ink);}
+  .diary-action-btn.danger{color:#D4453C;}
+  .diary-action-btn.danger-active{background:#FFE3E1; color:#D4453C;}
+  .diary-edit-textarea{
+    width:100%; border:1.5px solid var(--amber); border-radius:8px; padding:10px 12px;
+    font-family:inherit; font-size:13px; min-height:74px; margin:8px 0; resize:vertical;
+  }
+  .diary-edit-textarea:focus{outline:none;}
+  .diary-edit-actions{display:flex; gap:8px;}
+
+  /* ---------- View-only badge ---------- */
+  .readonly-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.05em;
+    color:var(--ink-soft); background:var(--surface-alt);
+    padding:5px 11px; border-radius:20px; margin-bottom:14px;
+  }
+
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .chat-layout{grid-template-columns:1fr; height:auto;}
+    .diary-layout{grid-template-columns:1fr;}
+    .grid-3, .grid-2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="brand" style="justify-content:center; margin-bottom:26px;"><span class="mark">✈</span> RiskRunway AI</div>
+
+    <div id="loginView">
+      <h2>เข้าสู่ระบบ</h2>
+      <p class="auth-sub">ยินดีต้อนรับกลับมา</p>
+      <label>อีเมล</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+      <button class="btn btn-amber" style="width:100%; justify-content:center; margin-top:18px;" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <p class="auth-switch">ยังไม่มีบัญชี? <a onclick="showAuth('register')">สมัครสมาชิก</a></p>
+    </div>
+
+    <div id="registerView" style="display:none;">
+      <h2>สมัครสมาชิก</h2>
+      <p class="auth-sub">สร้างบัญชีเพื่อเริ่มใช้งาน RiskRunway AI</p>
+      <label>ชื่อ-นามสกุล</label>
+      <input type="text" id="regName" placeholder="ชื่อของคุณ">
+      <label>อีเมล</label>
+      <input type="email" id="regEmail" placeholder="you@example.com">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="regPassword" placeholder="••••••••">
+      <label>ประเภทผู้ใช้งาน</label>
+      <div class="auth-role">
+        <label class="chip"><input type="radio" name="regRole" value="broker" checked><span>Broker</span></label>
+        <label class="chip"><input type="radio" name="regRole" value="customer"><span>Customer</span></label>
+      </div>
+      <button class="btn btn-amber" style="width:100%; justify-content:center; margin-top:18px;" onclick="doRegister()">สมัครสมาชิก</button>
+      <p class="auth-switch">มีบัญชีอยู่แล้ว? <a onclick="showAuth('login')">เข้าสู่ระบบ</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ROOT ============ -->
+<div id="appRoot" style="display:none;">
+<div class="topbar">
+  <div class="brand"><span class="mark">✈</span> RiskRunway AI</div>
+  <div class="app-switch">
+    <button class="active" data-app="broker">Broker</button>
+    <button data-app="customer">Customer</button>
+  </div>
+  <div class="topbar-right">
+    <div class="consent-pill">PDPA Consent Active</div>
+    <button class="user-chip" id="userChip" onclick="goPage('profile')" style="border:none;">B</button>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- ===================== SIDEBAR ===================== -->
+  <div class="sidebar" id="sidebarBroker">
+    <div class="eyebrow">Broker Workspace</div>
+    <button class="nav-item active" data-page="b-dashboard"><span class="ic">◧</span> Dashboard</button>
+    <button class="nav-item" data-page="b-customers"><span class="ic">☰</span> Customers</button>
+    <button class="nav-item" data-page="b-chat"><span class="ic">◐</span> Chat + Canvas</button>
+    <button class="nav-item" data-page="b-claims"><span class="ic">▤</span> Claims</button>
+    <button class="nav-item" data-page="b-renewals"><span class="ic">↻</span> Renewals</button>
+    <button class="nav-item" data-page="b-requests"><span class="ic">▣</span> Request Queue <span class="nav-badge">3</span></button>
+    <button class="nav-item" data-page="b-notifications"><span class="ic">◔</span> Notifications <span class="nav-badge">5</span></button>
+    <button class="nav-item" data-page="b-diary"><span class="ic">✎</span> Diary ลูกค้า</button>
+  </div>
+
+  <div class="sidebar" id="sidebarCustomer" style="display:none;">
+    <div class="eyebrow">My Account</div>
+    <button class="nav-item active" data-page="c-home"><span class="ic">◧</span> หน้าแรก</button>
+    <button class="nav-item" data-page="c-policies"><span class="ic">▤</span> กรมธรรม์ของฉัน</button>
+    <button class="nav-item" data-page="c-simulator"><span class="ic">✈</span> Risk Simulator</button>
+    <button class="nav-item" data-page="c-claims"><span class="ic">◐</span> การเคลม</button>
+    <button class="nav-item" data-page="c-broker-chat"><span class="ic">💬</span> คุยกับที่ปรึกษา</button>
+    <button class="nav-item" data-page="c-timeline"><span class="ic">◔</span> Life Timeline</button>
+    <div class="eyebrow" style="margin-top:16px;">Support</div>
+    <button class="nav-item" data-page="c-faq"><span class="ic">?</span> คำถามที่พบบ่อย</button>
+    <button class="nav-item" data-page="c-chat"><span class="ic">◐</span> แชทกับผู้ช่วย</button>
+  </div>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+
+    <!-- ============ BROKER: DASHBOARD ============ -->
+    <section class="page active" id="b-dashboard">
+      <div class="page-head">
+        <h1>Dashboard</h1>
+        <p>ภาพรวมลูกค้าในความดูแลของคุณวันนี้</p>
+      </div>
+      <div class="grid grid-3" style="margin-bottom:16px;">
+        <div class="card"><div class="card-title">ลูกค้าทั้งหมด</div><div class="stat-num">128</div><div class="stat-sub">Freelance segment 68%</div></div>
+        <div class="card"><div class="card-title">ใกล้ต่ออายุ (30 วัน)</div><div class="stat-num">14</div><div class="stat-sub">ต้องติดต่อภายในสัปดาห์นี้ 5 ราย</div></div>
+        <div class="card"><div class="card-title">เคลมค้างดำเนินการ</div><div class="stat-num">7</div><div class="stat-sub">รออนุมัติ 2 · รอเอกสาร 5</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">แจ้งเตือนล่าสุด</div>
+        <div class="list-row"><span class="badge coral">Risk</span><div><b>คุณกันต์ พรหมมา</b> — รายได้ลดต่อเนื่อง 2 เดือน เสี่ยงขาดชำระเบี้ยเดือนหน้า</div></div>
+        <div class="list-row"><span class="badge amber">Renewal</span><div><b>คุณศิริพร ใจดี</b> — กรมธรรม์สุขภาพหมดอายุใน 12 วัน</div></div>
+        <div class="list-row"><span class="badge green">Life-event</span><div><b>คุณธนกร วงศ์ไทย</b> — ตรวจพบธุรกรรมเกี่ยวกับบ้าน แนะนำทบทวนความคุ้มครอง</div></div>
+        <div class="list-row"><span class="badge navy">Request</span><div><b>คุณปวีณา สายชล</b> — ส่งคำขอต่ออายุกรมธรรม์รถยนต์</div></div>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: CUSTOMERS ============ -->
+    <section class="page" id="b-customers">
+      <div class="page-head">
+        <h1>Customers</h1>
+        <p>คลิกที่รายชื่อเพื่อดู Risk Runway และคำแนะนำสำหรับลูกค้าแต่ละราย</p>
+      </div>
+      <div class="card">
+        <table id="customerTable">
+          <thead><tr><th>ชื่อ</th><th>Segment</th><th>Runway</th><th>Match สูงสุด</th><th>สถานะ</th></tr></thead>
+          <tbody id="customerTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: CHAT + CANVAS ============ -->
+    <section class="page" id="b-chat">
+      <div class="page-head">
+        <h1>Chat + Interactive Canvas</h1>
+        <p>พิมพ์คุยกับลูกค้าได้จริง ส่วน Canvas ใช้เลือกข้อมูลลูกค้ามารวมเป็นกราฟเดียว เพื่อคำนวณว่าหลังซื้อประกันจะเป็นอย่างไร</p>
+      </div>
+      <div class="chat-layout">
+        <div class="chat-panel">
+          <div class="chat-head">คุณกันต์ พรหมมา · Freelance</div>
+          <div class="chat-body" id="chatBody">
+            <div class="bubble broker">สวัสดีครับ วันนี้อยากลองดูภาพรวมการเงินให้เห็นชัดๆ กันก่อนนะครับ</div>
+            <div class="bubble system">ได้เลยครับ 🙂</div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="พิมพ์ข้อความถึงลูกค้า...">
+            <button class="btn btn-primary btn-sm" onclick="sendBrokerMsg()">ส่ง</button>
+          </div>
+        </div>
+        <div class="canvas-panel">
+          <div class="card-title">เลือกข้อมูลลูกค้าเพื่อรวมเป็นกราฟเดียว</div>
+          <div class="chip-grid" id="dataChipGrid"></div>
+          <div class="canvas-divider"></div>
+          <div id="canvasResult"><p class="empty-note">เลือกข้อมูลด้านบนอย่างน้อย 1 รายการ เพื่อเริ่มคำนวณ</p></div>
+          <div class="llm-summary" id="canvasSummary">ยังไม่มีข้อมูลที่เลือก</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: CLAIMS ============ -->
+    <section class="page" id="b-claims">
+      <div class="page-head"><h1>Claims Management</h1><p>ติดตามและช่วยประสานงานเคลมของลูกค้าในมือ</p></div>
+      <div class="card">
+        <table>
+          <thead><tr><th>ลูกค้า</th><th>ประเภท</th><th>ยื่นเมื่อ</th><th>เอกสาร</th><th>สถานะ</th></tr></thead>
+          <tbody>
+            <tr><td>คุณศิริพร ใจดี</td><td>สุขภาพ — OPD</td><td>18 ก.ค. 2569</td><td><span class="badge green">ครบ</span></td><td><span class="badge amber">รอสินไหมตรวจสอบ</span></td></tr>
+            <tr><td>คุณธนกร วงศ์ไทย</td><td>อุบัติเหตุ</td><td>15 ก.ค. 2569</td><td><span class="badge coral">ขาด 1 ฉบับ</span></td><td><span class="badge coral">รอเอกสารเพิ่ม</span></td></tr>
+            <tr><td>คุณปวีณา สายชล</td><td>รถยนต์</td><td>9 ก.ค. 2569</td><td><span class="badge green">ครบ</span></td><td><span class="badge navy">อนุมัติแล้ว — รอโอนเงิน</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: RENEWALS ============ -->
+    <section class="page" id="b-renewals">
+      <div class="page-head"><h1>Renewal Management</h1><p>เปรียบเทียบแผนก่อนส่งข้อเสนอต่ออายุให้ลูกค้า</p></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">คุณศิริพร ใจดี — ประกันสุขภาพ หมดอายุ 12 ก.ค.</div>
+          <table>
+            <thead><tr><th>บริษัท</th><th>เบี้ย/ปี</th><th>ความคุ้มครอง</th></tr></thead>
+            <tbody>
+              <tr><td>บริษัทเดิม A</td><td>18,500</td><td>วงเงิน 500,000</td></tr>
+              <tr><td>บริษัท B</td><td>16,900</td><td>วงเงิน 600,000</td></tr>
+            </tbody>
+          </table>
+          <button class="btn btn-amber btn-sm" style="margin-top:12px;">ส่งข้อเสนอให้ลูกค้า</button>
+        </div>
+        <div class="card">
+          <div class="card-title">รายการที่ใกล้ครบกำหนดสัปดาห์นี้</div>
+          <div class="list-row">คุณศิริพร ใจดี <span class="badge amber" style="margin-left:auto;">12 วัน</span></div>
+          <div class="list-row">คุณอรรถพล ทองดี <span class="badge amber" style="margin-left:auto;">19 วัน</span></div>
+          <div class="list-row">คุณมนัสวี เพียรกิจ <span class="badge amber" style="margin-left:auto;">27 วัน</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: REQUEST QUEUE ============ -->
+    <section class="page" id="b-requests">
+      <div class="page-head"><h1>Request Queue</h1><p>คำขอเปลี่ยน/ยกเลิก/ต่อประกัน ที่ลูกค้าส่งมาจากแอปตัวเอง — ต้องมีคนอนุมัติก่อนดำเนินการ</p></div>
+      <div class="card">
+        <table>
+          <thead><tr><th>ลูกค้า</th><th>ประเภทคำขอ</th><th>ส่งเมื่อ</th><th>สถานะ</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>คุณปวีณา สายชล</td><td>ต่ออายุกรมธรรม์รถยนต์</td><td>วันนี้ 09:20</td><td><span class="badge amber">รอตรวจสอบ</span></td><td><button class="btn btn-ghost btn-sm">ตรวจสอบ</button></td></tr>
+            <tr><td>คุณอรรถพล ทองดี</td><td>เปลี่ยนที่อยู่จัดส่ง</td><td>เมื่อวาน</td><td><span class="badge amber">รอตรวจสอบ</span></td><td><button class="btn btn-ghost btn-sm">ตรวจสอบ</button></td></tr>
+            <tr><td>คุณมนัสวี เพียรกิจ</td><td>ยกเลิกกรมธรรม์เดินทาง</td><td>2 วันก่อน</td><td><span class="badge navy">ส่งต่อธนาคารแล้ว</span></td><td><button class="btn btn-ghost btn-sm">ดูรายละเอียด</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: NOTIFICATIONS ============ -->
+    <section class="page" id="b-notifications">
+      <div class="page-head"><h1>Notification Center</h1><p>แจ้งเตือนทั้งหมดในที่เดียว</p></div>
+      <div class="card">
+        <div class="list-row"><span class="badge coral">Payment Risk</span><div>คุณกันต์ พรหมมา — สัญญาณรายได้ลดต่อเนื่อง แนะนำติดต่อก่อนถึงกำหนดชำระ<div class="stat-sub">2 ชม.ที่แล้ว</div></div></div>
+        <div class="list-row"><span class="badge amber">Renewal</span><div>คุณศิริพร ใจดี — กรมธรรม์ใกล้หมดอายุใน 12 วัน<div class="stat-sub">5 ชม.ที่แล้ว</div></div></div>
+        <div class="list-row"><span class="badge green">Life-event</span><div>คุณธนกร วงศ์ไทย — ตรวจพบสัญญาณซื้อบ้าน<div class="stat-sub">เมื่อวาน</div></div></div>
+        <div class="list-row"><span class="badge navy">Request</span><div>คุณปวีณา สายชล — ส่งคำขอต่ออายุกรมธรรม์<div class="stat-sub">เมื่อวาน</div></div></div>
+        <div class="list-row"><span class="badge coral">Complaint</span><div>คุณอรรถพล ทองดี — แจ้งปัญหาการเคลมล่าช้า<div class="stat-sub">2 วันก่อน</div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: DIARY (notes per customer) ============ -->
+    <section class="page" id="b-diary">
+      <div class="page-head">
+        <h1>Diary — บันทึกลูกค้า</h1>
+        <p>เก็บบันทึกการนัดคุยแต่ละครั้ง แยกตามลูกค้ารายคน มองเห็นได้เฉพาะ Broker เท่านั้น ลูกค้าไม่สามารถเข้าถึงส่วนนี้ได้</p>
+      </div>
+      <div class="diary-layout">
+        <div class="card diary-list" id="diaryCustomerList"></div>
+        <div class="card diary-notes">
+          <div class="card-title" id="diaryCustomerName">เลือกลูกค้าด้านซ้าย</div>
+          <div id="diaryNotesTimeline"></div>
+          <div class="diary-add">
+            <textarea id="diaryNewNote" placeholder="บันทึกสิ่งที่คุยกันวันนี้... เช่น หัวข้อที่คุย ข้อกังวลของลูกค้า ขั้นตอนถัดไป"></textarea>
+            <button class="btn btn-amber btn-sm" onclick="addDiaryNote()">+ บันทึก Note</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER: HOME ============ -->
+    <section class="page" id="c-home">
+      <div class="page-head"><h1>สวัสดี คุณกันต์ 👋</h1><p>นี่คือภาพรวมความคุ้มครองของคุณวันนี้</p></div>
+      <div class="grid grid-3" style="margin-bottom:16px;">
+        <div class="card"><div class="card-title">กรมธรรม์ที่ถืออยู่</div><div class="stat-num">3</div><div class="stat-sub">Active ทั้งหมด</div></div>
+        <div class="card"><div class="card-title">วันหมดอายุใกล้สุด</div><div class="stat-num">42<span style="font-size:14px;"> วัน</span></div><div class="stat-sub">ประกันสุขภาพ</div></div>
+        <div class="card"><div class="card-title">เคลมที่กำลังดำเนินการ</div><div class="stat-num">1</div><div class="stat-sub">รอสินไหมตรวจสอบ</div></div>
+      </div>
+      <div class="card" style="border-color:#FFE1B0; background:#FFFBF3; margin-bottom:16px;">
+        <div style="display:flex; gap:12px; align-items:flex-start;">
+          <div style="font-size:22px;">🏠</div>
+          <div>
+            <b style="font-size:13.5px;">เราเห็นว่าคุณเพิ่งทำธุรกรรมเกี่ยวกับบ้าน</b>
+            <p style="font-size:12.5px; color:var(--ink-soft); margin-top:3px;">ลองดูประกันอัคคีภัยที่เหมาะกับคุณไหม — ดูรายละเอียดได้ที่ Life Timeline</p>
+          </div>
+          <button class="btn btn-amber btn-sm" style="margin-left:auto; flex-shrink:0;" onclick="goPage('c-timeline')">ดูเลย</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">คำแนะนำสำหรับคุณ</div>
+        <div class="grid grid-2">
+          <div style="background:var(--surface-alt); border-radius:10px; padding:14px;">
+            <b style="font-size:13px;">ประกันอัคคีภัย A</b>
+            <div style="font-family:var(--font-mono); color:var(--green); font-weight:600; font-size:13px; margin-top:4px;">Match 84%</div>
+          </div>
+          <div style="background:var(--surface-alt); border-radius:10px; padding:14px;">
+            <b style="font-size:13px;">ประกันสุขภาพ B (ต่ออายุ)</b>
+            <div style="font-family:var(--font-mono); color:var(--green); font-weight:600; font-size:13px; margin-top:4px;">Match 91%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER: POLICIES ============ -->
+    <section class="page" id="c-policies">
+      <div class="page-head"><h1>กรมธรรม์ของฉัน</h1><p>ดูรายละเอียดและทำรายการต่อ/เปลี่ยน/ยกเลิกได้ด้วยตัวเอง</p></div>
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>ประกันสุขภาพ ใจอุ่น พลัส</b>
+            <div class="stat-sub">เลขกรมธรรม์ HP-2024-88213 · หมดอายุ 12 ก.ย. 2569</div>
+          </div>
+          <span class="badge amber">ใกล้หมดอายุ</span>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="openModal()">ทำรายการ</button>
+          <button class="btn btn-ghost btn-sm">ดูรายละเอียด</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>ประกันอุบัติเหตุ ส่วนบุคคล</b>
+            <div class="stat-sub">เลขกรมธรรม์ PA-2023-44120 · หมดอายุ 3 มี.ค. 2570</div>
+          </div>
+          <span class="badge green">Active</span>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="openModal()">ทำรายการ</button>
+          <button class="btn btn-ghost btn-sm">ดูรายละเอียด</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>ประกันรถยนต์ ชั้น 1</b>
+            <div class="stat-sub">เลขกรมธรรม์ MT-2024-90045 · หมดอายุ 20 ธ.ค. 2569</div>
+          </div>
+          <span class="badge green">Active</span>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="openModal()">ทำรายการ</button>
+          <button class="btn btn-ghost btn-sm">ดูรายละเอียด</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER: RISK SIMULATOR ============ -->
+    <section class="page" id="c-simulator">
+      <div class="page-head">
+        <h1>Risk Simulator</h1>
+        <p>จำลองเหตุการณ์ เพื่อดูว่าเงินสำรองของคุณจะรับไหวแค่ไหน — ระบบไม่เสนอขายตรงๆ และไม่ทำ underwriting หรือ pricing</p>
+      </div>
+
+      <div class="scenario-btns">
+        <button class="scenario-btn active" onclick="setScenario(this,'base')">สถานการณ์ปกติ<small>รายได้-รายจ่ายปัจจุบัน</small></button>
+        <button class="scenario-btn" onclick="setScenario(this,'income')">รายได้หาย 50% นาน 6 เดือน<small>Income shock</small></button>
+        <button class="scenario-btn" onclick="setScenario(this,'stop')">หยุดทำงาน 3 เดือน<small>Business interruption</small></button>
+        <button class="scenario-btn" onclick="setScenario(this,'emergency')">เหตุฉุกเฉินต้องใช้เงินก้อน<small>Emergency fund</small></button>
+      </div>
+
+      <div class="runway-gauge">
+        <div class="runway-label">Risk Runway — เดือนที่เริ่มตึงมือ</div>
+        <div class="runway-readout"><span id="runwayNum">6</span><span class="unit">เดือน</span></div>
+        <div class="runway-track">
+          <div class="runway-lights" id="runwayLights"></div>
+          <div class="runway-fill" id="runwayFill" style="width:50%; background:linear-gradient(90deg, var(--green), #2FB98A);"></div>
+          <div class="runway-plane" id="runwayPlane" style="left:50%;">✈</div>
+        </div>
+        <div class="runway-scale"><span>0</span><span>3</span><span>6</span><span>9</span><span>12+ เดือน</span></div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">สรุปเป็นภาษาคน</div>
+        <p id="simSummary" style="font-size:13.5px; line-height:1.7;">ตอนนี้เงินสำรองของคุณรองรับค่าใช้จ่ายได้ประมาณ 6 เดือน หากไม่มีเหตุการณ์ไม่คาดฝัน ถือว่าอยู่ในระดับที่พอรับมือได้</p>
+        <div style="margin-top:14px;" id="simFlags"></div>
+      </div>
+      <p class="empty-note">ผลลัพธ์นี้ใช้เพื่อสร้างความเข้าใจความเสี่ยงเบื้องต้นเท่านั้น ไม่ใช่คำแนะนำทางการเงินหรือการตัดสินใจแทนคุณ</p>
+    </section>
+
+    <!-- ============ CUSTOMER: CLAIMS ============ -->
+    <section class="page" id="c-claims">
+      <div class="page-head"><h1>การเคลม</h1><p>เริ่มเคลมใหม่หรือติดตามสถานะที่ยื่นไปแล้ว</p></div>
+      <div class="card" style="margin-bottom:16px;">
+        <button class="btn btn-amber">+ เริ่มเคลมใหม่</button>
+      </div>
+      <div class="card">
+        <div class="card-title">ประวัติการเคลม</div>
+        <table>
+          <thead><tr><th>ประเภท</th><th>ยื่นเมื่อ</th><th>สถานะ</th></tr></thead>
+          <tbody>
+            <tr><td>สุขภาพ — OPD</td><td>18 ก.ค. 2569</td><td><span class="badge amber">รอสินไหมตรวจสอบ</span></td></tr>
+            <tr><td>อุบัติเหตุ</td><td>3 มี.ค. 2569</td><td><span class="badge green">อนุมัติ — โอนเงินแล้ว</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER: CHAT WITH ADVISOR (read-only) ============ -->
+    <section class="page" id="c-broker-chat">
+      <div class="page-head">
+        <h1>คุยกับที่ปรึกษา</h1>
+        <p>ประวัติการสนทนาและข้อมูลที่ที่ปรึกษาใช้คุยกับคุณล่าสุด</p>
+      </div>
+      <div class="readonly-badge">🔒 มุมมองนี้ดูได้อย่างเดียว — แก้ไขหรือส่งข้อความใหม่ไม่ได้</div>
+      <div class="chat-layout">
+        <div class="chat-panel">
+          <div class="chat-head">ที่ปรึกษาของคุณ · พี่แนน</div>
+          <div class="chat-body">
+            <div class="bubble broker">สวัสดีครับ วันนี้อยากลองดูภาพรวมการเงินให้เห็นชัดๆ กันก่อนนะครับ</div>
+            <div class="bubble system">ได้เลยครับ 🙂</div>
+            <div class="bubble broker">ลองดูรายได้เฉลี่ยกับประวัติอุบัติเหตุประกอบกันดูนะครับ</div>
+            <div class="bubble system">ได้ค่ะ ลองดูเลยค่ะ</div>
+          </div>
+        </div>
+        <div class="canvas-panel">
+          <div class="card-title">ข้อมูลที่ใช้ประกอบการคำนวณ</div>
+          <div class="chip-grid">
+            <div class="data-chip selected">รายได้เฉลี่ย/เดือน <span class="chip-detail">28,000 บาท</span></div>
+            <div class="data-chip selected">ประวัติอุบัติเหตุ <span class="chip-detail">เคย 1 ครั้ง</span></div>
+          </div>
+          <div class="canvas-divider"></div>
+          <div class="compare-bars">
+            <div class="compare-col">
+              <div class="compare-bar-track"><div class="compare-bar-fill before" style="height:26%;"></div></div>
+              <div class="compare-num">26</div>
+              <div class="compare-label">ก่อนซื้อประกัน</div>
+            </div>
+            <div class="compare-col">
+              <div class="compare-bar-track"><div class="compare-bar-fill after" style="height:49%;"></div></div>
+              <div class="compare-num">49</div>
+              <div class="compare-label">หลังซื้อประกัน</div>
+            </div>
+          </div>
+          <div class="llm-summary"><b>สรุป:</b> จากข้อมูลรายได้เฉลี่ยและประวัติอุบัติเหตุ ความพร้อมรับมือความเสี่ยงอยู่ที่ 26/100 ก่อนซื้อประกัน และเพิ่มขึ้นเป็น 49/100 หากซื้อความคุ้มครองที่แนะนำ</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER: LIFE TIMELINE ============ -->
+    <section class="page" id="c-timeline">
+      <div class="page-head"><h1>Life Timeline</h1><p>เหตุการณ์สำคัญที่ระบบตรวจพบ พร้อมคำแนะนำทบทวนความคุ้มครอง</p></div>
+      <div class="card">
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">🏠</div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>ตรวจพบธุรกรรมเกี่ยวกับบ้าน</h4>
+            <p>3 วันที่แล้ว · แนะนำทบทวนประกันอัคคีภัย/บ้าน</p>
+            <button class="btn btn-ghost btn-sm">ดูตัวเลือกประกัน</button>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">💼</div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>เปลี่ยนรูปแบบรายได้เป็น Freelance เต็มตัว</h4>
+            <p>2 เดือนที่แล้ว · แนะนำทบทวนความคุ้มครองรายได้</p>
+            <button class="btn btn-ghost btn-sm">ดูตัวเลือกประกัน</button>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">✅</div></div>
+          <div class="tl-content">
+            <h4>สมัครประกันอุบัติเหตุส่วนบุคคล</h4>
+            <p>8 เดือนที่แล้ว</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER: FAQ ============ -->
+    <section class="page" id="c-faq">
+      <div class="page-head"><h1>คำถามที่พบบ่อย</h1><p>หาคำตอบได้เองตลอด 24 ชั่วโมง</p></div>
+      <div class="card" id="faqList"></div>
+    </section>
+
+    <!-- ============ CUSTOMER: CHAT SUPPORT ============ -->
+    <section class="page" id="c-chat">
+      <div class="page-head"><h1>แชทกับผู้ช่วย</h1><p>ถามคำถามพื้นฐานได้ทันที หากตอบไม่ได้จะส่งต่อเจ้าหน้าที่ให้อัตโนมัติ</p></div>
+      <div class="chat-panel" style="height:480px; max-width:640px;">
+        <div class="chat-head">RiskRunway Assistant</div>
+        <div class="chat-body" id="botBody">
+          <div class="bubble system">สวัสดีค่ะ มีอะไรให้ช่วยไหมคะ 😊 ลองพิมพ์คำถาม เช่น "เคลมยังไง" หรือ "ต่ออายุยังไง"</div>
+        </div>
+        <div style="padding:12px; border-top:1px solid var(--border); display:flex; gap:8px;">
+          <input id="botInput" type="text" placeholder="พิมพ์คำถามของคุณ..." style="flex:1; border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:13px; font-family:inherit;">
+          <button class="btn btn-primary btn-sm" onclick="sendBotMsg()">ส่ง</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROFILE (shared) ============ -->
+    <section class="page" id="profile">
+      <div class="page-head"><h1>โปรไฟล์ของฉัน</h1><p>จัดการข้อมูลบัญชีและการตั้งค่า</p></div>
+      <div class="card" style="max-width:480px;">
+        <div class="profile-avatar" id="profileAvatar">B</div>
+        <div class="profile-field"><span class="k">ชื่อ</span><b id="profileName">Broker Demo</b></div>
+        <div class="profile-field"><span class="k">อีเมล</span><b id="profileEmail">broker@riskrunway.ai</b></div>
+        <div class="profile-field"><span class="k">บทบาท</span><span class="badge navy" id="profileRole">Broker</span></div>
+        <div class="profile-field"><span class="k">PDPA Consent</span><span class="badge green">Active</span></div>
+      </div>
+      <div style="margin-top:16px; display:flex; gap:8px;">
+        <button class="btn btn-ghost btn-sm">แก้ไขข้อมูล</button>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+</div><!-- /appRoot -->
+
+<!-- ============ MODAL: Policy action ============ -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 style="font-family:var(--font-display); margin-bottom:6px;">ทำรายการกรมธรรม์</h3>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:18px;">คำขอของคุณจะถูกส่งให้ broker หรือธนาคารตรวจสอบก่อนดำเนินการ ยังคงติดต่อนายหน้าโดยตรงได้เช่นเดิม</p>
+    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px; padding:10px 12px; border:1px solid var(--border); border-radius:8px;"><input type="radio" name="act" checked> ต่ออายุกรมธรรม์</label>
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px; padding:10px 12px; border:1px solid var(--border); border-radius:8px;"><input type="radio" name="act"> เปลี่ยนแผนความคุ้มครอง</label>
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px; padding:10px 12px; border:1px solid var(--border); border-radius:8px;"><input type="radio" name="act"> ยกเลิกกรมธรรม์</label>
+    </div>
+    <button class="btn btn-amber" style="width:100%; justify-content:center;" onclick="submitRequest()">ส่งคำขอ</button>
+  </div>
+</div>
+
+<script>
+  /* ---------------- Navigation ---------------- */
+  const sidebarBroker = document.getElementById('sidebarBroker');
+  const sidebarCustomer = document.getElementById('sidebarCustomer');
+  const userChip = document.getElementById('userChip');
+
+  document.querySelectorAll('.app-switch button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.app-switch button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const app = btn.dataset.app;
+      if(app === 'broker'){
+        sidebarBroker.style.display = 'block';
+        sidebarCustomer.style.display = 'none';
+        userChip.textContent = 'B';
+        syncProfile('broker');
+        goPage('b-dashboard');
+      } else {
+        sidebarBroker.style.display = 'none';
+        sidebarCustomer.style.display = 'block';
+        userChip.textContent = 'K';
+        syncProfile('customer');
+        goPage('c-home');
+      }
+    });
+  });
+
+  function goPage(id){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      n.classList.toggle('active', n.dataset.page === id);
+    });
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+
+  document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
+    btn.addEventListener('click', ()=> goPage(btn.dataset.page));
+  });
+
+  /* ---------------- Customer table (Broker app) ---------------- */
+  const customers = [
+    {name:'คุณกันต์ พรหมมา', seg:'Freelance', runway:2, match:88, status:'Payment Risk'},
+    {name:'คุณศิริพร ใจดี', seg:'พนักงานเงินเดือน', runway:8, match:91, status:'ใกล้ต่ออายุ'},
+    {name:'คุณธนกร วงศ์ไทย', seg:'Freelance', runway:5, match:84, status:'Life-event'},
+    {name:'คุณปวีณา สายชล', seg:'SME', runway:9, match:76, status:'ปกติ'},
+    {name:'คุณอรรถพล ทองดี', seg:'พนักงานเงินเดือน', runway:7, match:80, status:'ปกติ'},
+    {name:'คุณมนัสวี เพียรกิจ', seg:'Freelance', runway:3, match:89, status:'ใกล้ต่ออายุ'},
+  ];
+  const statusBadge = s=>{
+    if(s==='Payment Risk') return '<span class="badge coral">Payment Risk</span>';
+    if(s==='ใกล้ต่ออายุ') return '<span class="badge amber">ใกล้ต่ออายุ</span>';
+    if(s==='Life-event') return '<span class="badge green">Life-event</span>';
+    return '<span class="badge navy">ปกติ</span>';
+  };
+  const runwayColor = m => m<=3 ? 'var(--coral)' : (m<=6 ? 'var(--amber)' : 'var(--green)');
+  const tbody = document.getElementById('customerTbody');
+  customers.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.className = 'row-click';
+    tr.innerHTML = `<td><b>${c.name}</b></td><td>${c.seg}</td>
+      <td style="font-family:var(--font-mono); color:${runwayColor(c.runway)}; font-weight:600;">${c.runway} เดือน</td>
+      <td style="font-family:var(--font-mono);">${c.match}%</td>
+      <td>${statusBadge(c.status)}</td>`;
+    tr.addEventListener('click', ()=>{ goPage('b-chat'); });
+    tbody.appendChild(tr);
+  });
+
+  /* ---------------- Chat (two-way, broker <-> customer) ---------------- */
+  const chatBody = document.getElementById('chatBody');
+  const chatInput = document.getElementById('chatInput');
+
+  const customerReplies = [
+    'อ๋อ เข้าใจแล้วครับ',
+    'โอเคครับ ขอเวลาดูก่อนนะครับ',
+    'อันนี้น่าสนใจดีครับ ช่วยอธิบายเพิ่มได้ไหมครับ',
+    'ครับผม ขอบคุณครับ 🙏',
+    'เดี๋ยวขอคุยกับที่บ้านก่อนนะครับ แล้วจะแจ้งกลับไป',
+    'ตกลงครับ งั้นลองดูตัวเลขให้หน่อยได้ไหมครับ'
+  ];
+
+  function addChatBubble(text, cls){
+    const b = document.createElement('div');
+    b.className = 'bubble ' + cls;
+    b.textContent = text;
+    chatBody.appendChild(b);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function sendBrokerMsg(){
+    const val = chatInput.value.trim();
+    if(!val) return;
+    addChatBubble(val, 'broker');
+    chatInput.value = '';
+    setTimeout(()=>{
+      const reply = customerReplies[Math.floor(Math.random() * customerReplies.length)];
+      addChatBubble(reply, 'system');
+    }, 500 + Math.random() * 500);
+  }
+
+  if(chatInput){
+    chatInput.addEventListener('keydown', e=>{ if(e.key === 'Enter') sendBrokerMsg(); });
+  }
+
+  /* ---------------- Canvas: combinable customer data ---------------- */
+  const dataChips = [
+    {id:'age', label:'อายุ', detail:'35 ปี', before:8, afterBoost:2},
+    {id:'income', label:'รายได้เฉลี่ย/เดือน', detail:'28,000 บาท', before:12, afterBoost:5},
+    {id:'expense', label:'รายจ่ายจำเป็น/เดือน', detail:'22,000 บาท', before:10, afterBoost:4},
+    {id:'savings', label:'เงินสำรองปัจจุบัน', detail:'90,000 บาท', before:15, afterBoost:6},
+    {id:'accident', label:'ประวัติอุบัติเหตุ', detail:'เคย 1 ครั้ง', before:6, afterBoost:18},
+    {id:'health', label:'ประกันสุขภาพปัจจุบัน', detail:'ยังไม่มี', before:5, afterBoost:20},
+    {id:'loan', label:'ภาระผ่อนบ้าน/สินเชื่อ', detail:'มี', before:9, afterBoost:10},
+  ];
+  const selectedChipIds = new Set();
+
+  function toggleDataChip(id){
+    if(selectedChipIds.has(id)) selectedChipIds.delete(id);
+    else selectedChipIds.add(id);
+    renderChipGrid();
+    renderCanvasResult();
+  }
+
+  function renderChipGrid(){
+    const el = document.getElementById('dataChipGrid');
+    if(!el) return;
+    el.innerHTML = '';
+    dataChips.forEach(chip=>{
+      const btn = document.createElement('button');
+      const isSel = selectedChipIds.has(chip.id);
+      btn.className = 'data-chip' + (isSel ? ' selected' : '');
+      btn.innerHTML = `${isSel ? '✓ ' : '+ '}${chip.label} <span class="chip-detail">${chip.detail}</span>`;
+      btn.addEventListener('click', ()=> toggleDataChip(chip.id));
+      el.appendChild(btn);
+    });
+  }
+
+  function renderCanvasResult(){
+    const resultEl = document.getElementById('canvasResult');
+    const summaryEl = document.getElementById('canvasSummary');
+    if(selectedChipIds.size === 0){
+      resultEl.innerHTML = '<p class="empty-note">เลือกข้อมูลด้านบนอย่างน้อย 1 รายการ เพื่อเริ่มคำนวณ</p>';
+      summaryEl.textContent = 'ยังไม่มีข้อมูลที่เลือก';
+      return;
+    }
+    let before = 0, boost = 0;
+    selectedChipIds.forEach(id=>{
+      const chip = dataChips.find(c => c.id === id);
+      if(chip){ before += chip.before; boost += chip.afterBoost; }
+    });
+    before = Math.min(before, 100);
+    const after = Math.min(before + boost, 100);
+
+    resultEl.innerHTML = `
+      <div class="compare-bars">
+        <div class="compare-col">
+          <div class="compare-bar-track"><div class="compare-bar-fill before" style="height:${before}%;"></div></div>
+          <div class="compare-num">${before}</div>
+          <div class="compare-label">ก่อนซื้อประกัน</div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-bar-track"><div class="compare-bar-fill after" style="height:${after}%;"></div></div>
+          <div class="compare-num">${after}</div>
+          <div class="compare-label">หลังซื้อประกัน</div>
+        </div>
+      </div>`;
+
+    summaryEl.innerHTML = `<b>สรุป:</b> จากข้อมูลที่เลือก ${selectedChipIds.size} รายการ ความพร้อมรับมือความเสี่ยงอยู่ที่ <b>${before}/100</b> ก่อนซื้อประกัน และเพิ่มขึ้นเป็น <b>${after}/100</b> (+${after - before}) หากซื้อความคุ้มครองที่ระบบแนะนำ`;
+  }
+
+  /* ---------------- Risk Simulator ---------------- */
+  const scenarios = {
+    base:{months:6, pct:50, color:'var(--green)', text:'ตอนนี้เงินสำรองของคุณรองรับค่าใช้จ่ายได้ประมาณ 6 เดือน หากไม่มีเหตุการณ์ไม่คาดฝัน ถือว่าอยู่ในระดับที่พอรับมือได้', flags:[]},
+    income:{months:4, pct:33, color:'var(--amber)', text:'หากรายได้หายไปครึ่งหนึ่งนาน 6 เดือน เงินสำรองของคุณจะเริ่มตึงมือตั้งแต่เดือนที่ 4 ควรพิจารณาความคุ้มครองที่ช่วยพยุงรายได้ระหว่างช่วงนี้', flags:[{c:'var(--amber)', t:'Income Protection — ช่วยพยุงรายได้ช่วงรายได้หด'}]},
+    stop:{months:2, pct:17, color:'var(--coral)', text:'หากหยุดทำงาน 3 เดือนโดยไม่มีรายรับเข้ามาเลย เงินสำรองจะรองรับได้เพียง 2 เดือนก่อนเริ่มตึงมือ ควรมีความคุ้มครองรองรับธุรกิจสะดุด', flags:[{c:'var(--coral)', t:'Business Interruption — คุ้มครองช่วงหยุดทำงาน'},{c:'var(--amber)', t:'Income Protection — เสริมสภาพคล่องระหว่างพัก'}]},
+    emergency:{months:1, pct:8, color:'var(--coral)', text:'หากเกิดเหตุฉุกเฉินที่ต้องใช้เงินก้อนทันที เงินสำรองปัจจุบันรองรับได้เพียง 1 เดือน ควรพิจารณาความคุ้มครองสุขภาพ/อุบัติเหตุที่ช่วยลดภาระค่าใช้จ่ายก้อนใหญ่', flags:[{c:'var(--coral)', t:'Health / Emergency Fund — ลดภาระค่าใช้จ่ายก้อนใหญ่'}]}
+  };
+
+  const runwayLightsEl = document.getElementById('runwayLights');
+  for(let i=0;i<12;i++){ const s = document.createElement('span'); runwayLightsEl.appendChild(s); }
+
+  function setScenario(btn, key){
+    document.querySelectorAll('.scenario-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const s = scenarios[key];
+    document.getElementById('runwayNum').textContent = s.months;
+    document.getElementById('runwayFill').style.width = s.pct + '%';
+    document.getElementById('runwayFill').style.background = `linear-gradient(90deg, ${s.color}, ${s.color})`;
+    document.getElementById('runwayPlane').style.left = s.pct + '%';
+    document.getElementById('simSummary').textContent = s.text;
+    const flagsEl = document.getElementById('simFlags');
+    flagsEl.innerHTML = '';
+    s.flags.forEach(f=>{
+      const row = document.createElement('div');
+      row.className = 'flag-row';
+      row.innerHTML = `<span class="flag-dot" style="background:${f.c};"></span>${f.t}`;
+      flagsEl.appendChild(row);
+    });
+  }
+
+  /* ---------------- FAQ ---------------- */
+  const faqData = [
+    {q:'ต้องทำอย่างไรเมื่อต้องการเคลม?', a:'ไปที่เมนู "การเคลม" กดเริ่มเคลมใหม่ เลือกกรมธรรม์ที่เกี่ยวข้อง แล้วทำตามเช็คลิสต์เอกสารที่ระบบแจ้ง ระบบจะติดตามสถานะให้อัตโนมัติ'},
+    {q:'ต่ออายุกรมธรรม์ได้อย่างไร?', a:'ไปที่ "กรมธรรม์ของฉัน" เลือกกรมธรรม์ที่ต้องการ กดปุ่ม "ทำรายการ" แล้วเลือกต่ออายุ คำขอจะถูกส่งให้ broker ตรวจสอบก่อนดำเนินการ'},
+    {q:'ขอเปลี่ยนที่อยู่หรือผู้รับผลประโยชน์ได้ไหม?', a:'ได้ค่ะ ไปที่รายละเอียดกรมธรรม์แล้วกด "ขอแก้ไขข้อมูล" กรอกข้อมูลใหม่ คำขอจะถูกส่งให้ broker/ธนาคารดำเนินการแล้วแจ้งผลกลับ'},
+    {q:'ข้อมูลของฉันปลอดภัยหรือไม่?', a:'ระบบใช้ข้อมูลของคุณเพื่อการวิเคราะห์และให้คำแนะนำเท่านั้น ไม่ใช้ตัดสินใจแทนคุณ และต้องได้รับความยินยอมจากคุณก่อนเสมอตามหลัก PDPA'},
+  ];
+  const faqList = document.getElementById('faqList');
+  faqData.forEach((item,i)=>{
+    const div = document.createElement('div');
+    div.className = 'faq-item';
+    div.innerHTML = `<button class="faq-q">${item.q}<span class="faq-chev">+</span></button><div class="faq-a">${item.a}</div>`;
+    div.querySelector('.faq-q').addEventListener('click', ()=> div.classList.toggle('open'));
+    faqList.appendChild(div);
+  });
+
+  /* ---------------- Chatbot ---------------- */
+  const botBody = document.getElementById('botBody');
+  const botInput = document.getElementById('botInput');
+  function botReply(msg){
+    const lower = msg.toLowerCase();
+    if(lower.includes('เคลม')) return {text:faqData[0].a, escalate:false};
+    if(lower.includes('ต่ออายุ')) return {text:faqData[1].a, escalate:false};
+    if(lower.includes('ที่อยู่') || lower.includes('แก้ไข')) return {text:faqData[2].a, escalate:false};
+    return {text:'ขออภัยค่ะ ยังไม่เจอคำตอบที่ตรงกับคำถามนี้ กำลังส่งต่อให้เจ้าหน้าที่ พร้อมสรุปบทสนทนาให้อัตโนมัติ ไม่ต้องพิมพ์ซ้ำนะคะ', escalate:true};
+  }
+  function addBotBubble(text, cls){
+    const b = document.createElement('div');
+    b.className = 'bubble ' + cls;
+    b.textContent = text;
+    botBody.appendChild(b);
+    botBody.scrollTop = botBody.scrollHeight;
+  }
+  function sendBotMsg(){
+    const val = botInput.value.trim();
+    if(!val) return;
+    addBotBubble(val, 'broker');
+    botInput.value = '';
+    setTimeout(()=>{
+      const r = botReply(val);
+      addBotBubble(r.text, 'system');
+      if(r.escalate){
+        setTimeout(()=> addBotBubble('เจ้าหน้าที่ "พี่แนน" จะติดต่อกลับภายใน 15 นาทีค่ะ 🙏', 'system'), 500);
+      }
+    }, 400);
+  }
+  botInput.addEventListener('keydown', e=>{ if(e.key==='Enter') sendBotMsg(); });
+
+  /* ---------------- Modal ---------------- */
+  function openModal(){ document.getElementById('modalBackdrop').classList.add('open'); }
+  function closeModal(){ document.getElementById('modalBackdrop').classList.remove('open'); }
+  function submitRequest(){
+    closeModal();
+    goPage('c-policies');
+    alert('ส่งคำขอเรียบร้อย — broker จะตรวจสอบและแจ้งผลกลับในหน้า "คำขอของฉัน"');
+  }
+
+  /* ---------------- Auth screens ---------------- */
+  function showAuth(view){
+    document.getElementById('loginView').style.display = view === 'login' ? 'block' : 'none';
+    document.getElementById('registerView').style.display = view === 'register' ? 'block' : 'none';
+  }
+
+  function enterApp(role){
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = 'block';
+    document.querySelectorAll('.app-switch button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.app === role);
+    });
+    if(role === 'broker'){
+      sidebarBroker.style.display = 'block';
+      sidebarCustomer.style.display = 'none';
+      userChip.textContent = 'B';
+      syncProfile('broker');
+      goPage('b-dashboard');
+    } else {
+      sidebarBroker.style.display = 'none';
+      sidebarCustomer.style.display = 'block';
+      userChip.textContent = 'K';
+      syncProfile('customer');
+      goPage('c-home');
+    }
+  }
+
+  function doLogin(){
+    const email = document.getElementById('loginEmail').value.trim();
+    if(!email){ document.getElementById('loginEmail').focus(); return; }
+    // Demo login: broker@ addresses go to Broker app, everything else to Customer app
+    const role = email.toLowerCase().includes('broker') ? 'broker' : 'customer';
+    if(role === 'broker'){ profileState.broker.email = email; } else { profileState.customer.email = email; }
+    enterApp(role);
+  }
+
+  function doRegister(){
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    if(!name || !email){ document.getElementById(name ? 'regEmail' : 'regName').focus(); return; }
+    const role = document.querySelector('input[name="regRole"]:checked').value;
+    profileState[role].name = name;
+    profileState[role].email = email;
+    enterApp(role);
+  }
+
+  function logout(){
+    document.getElementById('appRoot').style.display = 'none';
+    document.getElementById('authScreen').style.display = 'flex';
+    showAuth('login');
+  }
+
+  /* ---------------- Profile sync ---------------- */
+  const profileState = {
+    broker:{name:'Broker Demo', email:'broker@riskrunway.ai'},
+    customer:{name:'คุณกันต์ พรหมมา', email:'kant@example.com'}
+  };
+  function syncProfile(role){
+    const p = profileState[role];
+    document.getElementById('profileName').textContent = p.name;
+    document.getElementById('profileEmail').textContent = p.email;
+    document.getElementById('profileRole').textContent = role === 'broker' ? 'Broker' : 'Customer';
+    document.getElementById('profileAvatar').textContent = p.name.charAt(0).toUpperCase();
+  }
+
+  /* ---------------- Diary / Notes (Broker) ---------------- */
+  const diaryNames = customers.map(c => c.name);
+  const notesData = {};
+  let noteIdCounter = 1;
+  function makeNote(date, text){
+    return {id:'note_' + (noteIdCounter++), date, text};
+  }
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  diaryNames.forEach(n => { notesData[n] = []; });
+  notesData[diaryNames[0]] = [
+    makeNote('18 ก.ค. 2569', 'คุยเรื่องรายได้ที่ลดลงต่อเนื่อง แนะนำให้พิจารณา Income Protection เบื้องต้น ลูกค้าขอเวลาคิดก่อนตัดสินใจ'),
+    makeNote('2 ก.ค. 2569', 'โทรทักทาย สอบถามสถานการณ์งาน freelance ช่วงนี้ ลูกค้าเล่าว่างานเริ่มน้อยลงตั้งแต่เดือนก่อน')
+  ];
+  notesData[diaryNames[1]] = [
+    makeNote('10 ก.ค. 2569', 'แจ้งเตือนกรมธรรม์สุขภาพใกล้หมดอายุ ลูกค้าสนใจเทียบแผนใหม่กับบริษัท B')
+  ];
+  notesData[diaryNames[2]] = [
+    makeNote('29 มิ.ย. 2569', 'ลูกค้าแจ้งว่าเพิ่งซื้อบ้าน สนใจฟังเรื่องประกันอัคคีภัยเพิ่มเติมในนัดหน้า')
+  ];
+
+  let selectedDiaryCustomer = diaryNames[0];
+  let editingNoteId = null;
+  let deleteConfirmId = null;
+  let deleteConfirmTimer = null;
+
+  function resetDiaryUiState(){
+    editingNoteId = null;
+    deleteConfirmId = null;
+    if(deleteConfirmTimer){ clearTimeout(deleteConfirmTimer); deleteConfirmTimer = null; }
+  }
+
+  function renderDiaryList(){
+    const el = document.getElementById('diaryCustomerList');
+    if(!el) return;
+    el.innerHTML = '';
+    diaryNames.forEach(name=>{
+      const btn = document.createElement('button');
+      btn.className = 'diary-cust-btn' + (name === selectedDiaryCustomer ? ' active' : '');
+      const count = (notesData[name] || []).length;
+      btn.innerHTML = `<span>${escapeHtml(name)}</span><span class="diary-count">${count}</span>`;
+      btn.addEventListener('click', ()=>{
+        selectedDiaryCustomer = name;
+        resetDiaryUiState();
+        renderDiaryList();
+        renderDiaryNotes();
+      });
+      el.appendChild(btn);
+    });
+  }
+
+  function renderDiaryNotes(){
+    const titleEl = document.getElementById('diaryCustomerName');
+    const wrap = document.getElementById('diaryNotesTimeline');
+    if(!titleEl || !wrap) return;
+    titleEl.textContent = 'Note ของ ' + selectedDiaryCustomer;
+    wrap.innerHTML = '';
+    const notes = notesData[selectedDiaryCustomer] || [];
+    if(notes.length === 0){
+      wrap.innerHTML = '<p class="empty-note">ยังไม่มีบันทึกสำหรับลูกค้ารายนี้ — เริ่มบันทึก note แรกด้านล่างได้เลย</p>';
+      return;
+    }
+    notes.forEach(n=>{
+      const row = document.createElement('div');
+      row.className = 'diary-entry';
+      if(editingNoteId === n.id){
+        row.innerHTML = `
+          <div class="diary-date">${escapeHtml(n.date)}</div>
+          <textarea class="diary-edit-textarea" id="editTA-${n.id}"></textarea>
+          <div class="diary-edit-actions">
+            <button class="btn btn-amber btn-sm" onclick="saveEditNote('${n.id}')">บันทึกการแก้ไข</button>
+            <button class="btn btn-ghost btn-sm" onclick="cancelEditNote()">ยกเลิก</button>
+          </div>`;
+        wrap.appendChild(row);
+        const ta = document.getElementById('editTA-' + n.id);
+        ta.value = n.text;
+        ta.focus();
+      } else {
+        const isConfirming = deleteConfirmId === n.id;
+        row.innerHTML = `
+          <div class="diary-entry-head">
+            <div class="diary-date">${escapeHtml(n.date)}</div>
+            <div class="diary-actions">
+              <button class="diary-action-btn" onclick="startEditNote('${n.id}')">แก้ไข</button>
+              <button class="diary-action-btn ${isConfirming ? 'danger-active' : 'danger'}" onclick="handleDeleteClick('${n.id}')">${isConfirming ? 'ยืนยันลบ?' : 'ลบ'}</button>
+            </div>
+          </div>
+          <div class="diary-text">${escapeHtml(n.text)}</div>`;
+        wrap.appendChild(row);
+      }
+    });
+  }
+
+  function startEditNote(id){
+    editingNoteId = id;
+    deleteConfirmId = null;
+    if(deleteConfirmTimer){ clearTimeout(deleteConfirmTimer); deleteConfirmTimer = null; }
+    renderDiaryNotes();
+  }
+
+  function cancelEditNote(){
+    editingNoteId = null;
+    renderDiaryNotes();
+  }
+
+  function saveEditNote(id){
+    const ta = document.getElementById('editTA-' + id);
+    const val = ta ? ta.value.trim() : '';
+    if(!val) return;
+    const notes = notesData[selectedDiaryCustomer] || [];
+    const note = notes.find(n => n.id === id);
+    if(note) note.text = val;
+    editingNoteId = null;
+    renderDiaryNotes();
+  }
+
+  function handleDeleteClick(id){
+    if(deleteConfirmId === id){
+      notesData[selectedDiaryCustomer] = (notesData[selectedDiaryCustomer] || []).filter(n => n.id !== id);
+      deleteConfirmId = null;
+      if(deleteConfirmTimer){ clearTimeout(deleteConfirmTimer); deleteConfirmTimer = null; }
+      renderDiaryList();
+      renderDiaryNotes();
+    } else {
+      deleteConfirmId = id;
+      renderDiaryNotes();
+      if(deleteConfirmTimer) clearTimeout(deleteConfirmTimer);
+      deleteConfirmTimer = setTimeout(()=>{
+        deleteConfirmId = null;
+        renderDiaryNotes();
+      }, 3000);
+    }
+  }
+
+  function addDiaryNote(){
+    const ta = document.getElementById('diaryNewNote');
+    const text = ta.value.trim();
+    if(!text) return;
+    if(!notesData[selectedDiaryCustomer]) notesData[selectedDiaryCustomer] = [];
+    notesData[selectedDiaryCustomer].unshift(makeNote('วันนี้', text));
+    ta.value = '';
+    resetDiaryUiState();
+    renderDiaryList();
+    renderDiaryNotes();
+  }
+
+  /* ---------------- init ---------------- */
+  setScenario(document.querySelector('.scenario-btn'), 'base');
+  syncProfile('broker');
+  renderDiaryList();
+  renderDiaryNotes();
+  renderChipGrid();
+  renderCanvasResult();
+</script>
+</body>
+</html>
