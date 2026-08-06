@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RiskRunway AI — Prototype</title>
+<title>RiskLens — Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -62,6 +62,9 @@
     border-radius:8px;
     font-size:15px;
     transform:rotate(-8deg);
+  }
+  .brand .risk{
+    color: #000;
   }
   .app-switch{
     display:flex;
@@ -600,7 +603,7 @@
 <!-- ============ AUTH SCREEN ============ -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
-    <div class="brand" style="justify-content:center; margin-bottom:26px;"><span class="mark">✈</span> RiskRunway AI</div>
+    <div class="brand" style="justify-content:center; margin-bottom:26px;"><span class="mark">✈</span> <span class="risk">RiskLens</span></div>
 
     <div id="loginView">
       <h2>เข้าสู่ระบบ</h2>
@@ -615,7 +618,7 @@
 
     <div id="registerView" style="display:none;">
       <h2>สมัครสมาชิก</h2>
-      <p class="auth-sub">สร้างบัญชีเพื่อเริ่มใช้งาน RiskRunway AI</p>
+      <p class="auth-sub">สร้างบัญชีเพื่อเริ่มใช้งาน RiskLens</p>
       <label>ชื่อ-นามสกุล</label>
       <input type="text" id="regName" placeholder="ชื่อของคุณ">
       <label>อีเมล</label>
@@ -636,7 +639,7 @@
 <!-- ============ APP ROOT ============ -->
 <div id="appRoot" style="display:none;">
 <div class="topbar">
-  <div class="brand"><span class="mark">✈</span> RiskRunway AI</div>
+  <div class="brand"><span class="mark">✈</span> RiskLens</div>
   <div class="app-switch">
     <button class="active" data-app="broker">Broker</button>
     <button data-app="customer">Customer</button>
