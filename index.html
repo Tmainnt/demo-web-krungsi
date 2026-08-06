@@ -379,6 +379,16 @@
   .data-chip.selected{background:var(--navy-0); color:#fff; border-color:var(--navy-0);}
   .data-chip .chip-detail{font-weight:400; opacity:0.65; font-size:10.5px;}
   .canvas-divider{height:1px; background:var(--border); margin:18px 0;}
+  .period-toggle{display:flex; gap:8px; margin-top:14px;}
+  .period-btn{
+    flex:1; background:var(--surface-alt); border:1.5px solid transparent; border-radius:8px;
+    padding:8px 10px; font-size:11.5px; font-weight:700; color:var(--ink-soft); font-family:inherit;
+  }
+  .period-btn:hover{border-color:var(--border);}
+  .period-btn.active{background:var(--navy-0); color:#fff;}
+  .chart-legend{display:flex; gap:18px; margin-top:8px; justify-content:center; font-size:11px; color:var(--ink-soft);}
+  .chart-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .chart-legend .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
   .compare-bars{display:flex; gap:28px; justify-content:center; padding:6px 0 4px;}
   .compare-col{display:flex; flex-direction:column; align-items:center; width:90px;}
   .compare-bar-track{
@@ -705,15 +715,12 @@
     <section class="page" id="b-chat">
       <div class="page-head">
         <h1>Chat + Interactive Canvas</h1>
-        <p>พิมพ์คุยกับลูกค้าได้จริง ส่วน Canvas ใช้เลือกข้อมูลลูกค้ามารวมเป็นกราฟเดียว เพื่อคำนวณว่าหลังซื้อประกันจะเป็นอย่างไร</p>
+        <p>พิมพ์คุยกับลูกค้าได้จริง — ข้อมูลที่เลือกใน Canvas จะซิงค์ไปแสดงในหน้า "คุยกับที่ปรึกษา" ของลูกค้าทันที</p>
       </div>
       <div class="chat-layout">
         <div class="chat-panel">
           <div class="chat-head">คุณกันต์ พรหมมา · Freelance</div>
-          <div class="chat-body" id="chatBody">
-            <div class="bubble broker">สวัสดีครับ วันนี้อยากลองดูภาพรวมการเงินให้เห็นชัดๆ กันก่อนนะครับ</div>
-            <div class="bubble system">ได้เลยครับ 🙂</div>
-          </div>
+          <div class="chat-body" id="brokerChatBody"></div>
           <div class="chat-input-row">
             <input type="text" id="chatInput" placeholder="พิมพ์ข้อความถึงลูกค้า...">
             <button class="btn btn-primary btn-sm" onclick="sendBrokerMsg()">ส่ง</button>
@@ -722,6 +729,10 @@
         <div class="canvas-panel">
           <div class="card-title">เลือกข้อมูลลูกค้าเพื่อรวมเป็นกราฟเดียว</div>
           <div class="chip-grid" id="dataChipGrid"></div>
+          <div class="period-toggle">
+            <button class="period-btn active" id="periodBtnMonth" onclick="setChartPeriod('month')">รายเดือน (12 เดือน)</button>
+            <button class="period-btn" id="periodBtnYear" onclick="setChartPeriod('year')">รายปี (5 ปี)</button>
+          </div>
           <div class="canvas-divider"></div>
           <div id="canvasResult"><p class="empty-note">เลือกข้อมูลด้านบนอย่างน้อย 1 รายการ เพื่อเริ่มคำนวณ</p></div>
           <div class="llm-summary" id="canvasSummary">ยังไม่มีข้อมูลที่เลือก</div>
@@ -942,43 +953,28 @@
       </div>
     </section>
 
-    <!-- ============ CUSTOMER: CHAT WITH ADVISOR (read-only) ============ -->
+    <!-- ============ CUSTOMER: CHAT WITH ADVISOR (chat live, canvas read-only) ============ -->
     <section class="page" id="c-broker-chat">
       <div class="page-head">
         <h1>คุยกับที่ปรึกษา</h1>
-        <p>ประวัติการสนทนาและข้อมูลที่ที่ปรึกษาใช้คุยกับคุณล่าสุด</p>
+        <p>พิมพ์คุยกับที่ปรึกษาได้ตามปกติ ส่วนข้อมูลใน Canvas จะซิงค์ตามที่ที่ปรึกษาเลือกไว้แบบเรียลไทม์</p>
       </div>
-      <div class="readonly-badge">🔒 มุมมองนี้ดูได้อย่างเดียว — แก้ไขหรือส่งข้อความใหม่ไม่ได้</div>
       <div class="chat-layout">
         <div class="chat-panel">
           <div class="chat-head">ที่ปรึกษาของคุณ · พี่แนน</div>
-          <div class="chat-body">
-            <div class="bubble broker">สวัสดีครับ วันนี้อยากลองดูภาพรวมการเงินให้เห็นชัดๆ กันก่อนนะครับ</div>
-            <div class="bubble system">ได้เลยครับ 🙂</div>
-            <div class="bubble broker">ลองดูรายได้เฉลี่ยกับประวัติอุบัติเหตุประกอบกันดูนะครับ</div>
-            <div class="bubble system">ได้ค่ะ ลองดูเลยค่ะ</div>
+          <div class="chat-body" id="customerChatBody"></div>
+          <div class="chat-input-row">
+            <input type="text" id="customerChatInput" placeholder="พิมพ์ข้อความถึงที่ปรึกษา...">
+            <button class="btn btn-primary btn-sm" onclick="sendCustomerMsg()">ส่ง</button>
           </div>
         </div>
         <div class="canvas-panel">
-          <div class="card-title">ข้อมูลที่ใช้ประกอบการคำนวณ</div>
-          <div class="chip-grid">
-            <div class="data-chip selected">รายได้เฉลี่ย/เดือน <span class="chip-detail">28,000 บาท</span></div>
-            <div class="data-chip selected">ประวัติอุบัติเหตุ <span class="chip-detail">เคย 1 ครั้ง</span></div>
-          </div>
+          <div class="readonly-badge">🔒 Canvas นี้ดูได้อย่างเดียว — ที่ปรึกษาเป็นผู้เลือกข้อมูล</div>
+          <div class="card-title">ข้อมูลที่ที่ปรึกษาเลือกไว้</div>
+          <div class="chip-grid" id="dataChipGridReadonly"></div>
           <div class="canvas-divider"></div>
-          <div class="compare-bars">
-            <div class="compare-col">
-              <div class="compare-bar-track"><div class="compare-bar-fill before" style="height:26%;"></div></div>
-              <div class="compare-num">26</div>
-              <div class="compare-label">ก่อนซื้อประกัน</div>
-            </div>
-            <div class="compare-col">
-              <div class="compare-bar-track"><div class="compare-bar-fill after" style="height:49%;"></div></div>
-              <div class="compare-num">49</div>
-              <div class="compare-label">หลังซื้อประกัน</div>
-            </div>
-          </div>
-          <div class="llm-summary"><b>สรุป:</b> จากข้อมูลรายได้เฉลี่ยและประวัติอุบัติเหตุ ความพร้อมรับมือความเสี่ยงอยู่ที่ 26/100 ก่อนซื้อประกัน และเพิ่มขึ้นเป็น 49/100 หากซื้อความคุ้มครองที่แนะนำ</div>
+          <div id="canvasResultReadonly"><p class="empty-note">ที่ปรึกษายังไม่ได้เลือกข้อมูลเพื่อคำนวณ</p></div>
+          <div class="llm-summary" id="canvasSummaryReadonly">ยังไม่มีข้อมูลที่เลือก</div>
         </div>
       </div>
     </section>
@@ -1138,43 +1134,61 @@
     tbody.appendChild(tr);
   });
 
-  /* ---------------- Chat (two-way, broker <-> customer) ---------------- */
-  const chatBody = document.getElementById('chatBody');
-  const chatInput = document.getElementById('chatInput');
-
-  const customerReplies = [
-    'อ๋อ เข้าใจแล้วครับ',
-    'โอเคครับ ขอเวลาดูก่อนนะครับ',
-    'อันนี้น่าสนใจดีครับ ช่วยอธิบายเพิ่มได้ไหมครับ',
-    'ครับผม ขอบคุณครับ 🙏',
-    'เดี๋ยวขอคุยกับที่บ้านก่อนนะครับ แล้วจะแจ้งกลับไป',
-    'ตกลงครับ งั้นลองดูตัวเลขให้หน่อยได้ไหมครับ'
+  /* ---------------- Chat (synced, broker <-> customer) ---------------- */
+  let chatMessages = [
+    {sender:'broker', text:'สวัสดีครับ วันนี้อยากลองดูภาพรวมการเงินให้เห็นชัดๆ กันก่อนนะครับ'},
+    {sender:'customer', text:'ได้เลยครับ 🙂'}
   ];
 
-  function addChatBubble(text, cls){
-    const b = document.createElement('div');
-    b.className = 'bubble ' + cls;
-    b.textContent = text;
-    chatBody.appendChild(b);
-    chatBody.scrollTop = chatBody.scrollHeight;
+  function bubbleClassFor(viewer, sender){
+    return viewer === sender ? 'broker' : 'system';
+  }
+
+  function renderChatFor(containerId, viewer){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    el.innerHTML = '';
+    chatMessages.forEach(m=>{
+      const b = document.createElement('div');
+      b.className = 'bubble ' + bubbleClassFor(viewer, m.sender);
+      b.textContent = m.text;
+      el.appendChild(b);
+    });
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function renderChatMessages(){
+    renderChatFor('brokerChatBody', 'broker');
+    renderChatFor('customerChatBody', 'customer');
   }
 
   function sendBrokerMsg(){
-    const val = chatInput.value.trim();
+    const input = document.getElementById('chatInput');
+    const val = input.value.trim();
     if(!val) return;
-    addChatBubble(val, 'broker');
-    chatInput.value = '';
-    setTimeout(()=>{
-      const reply = customerReplies[Math.floor(Math.random() * customerReplies.length)];
-      addChatBubble(reply, 'system');
-    }, 500 + Math.random() * 500);
+    chatMessages.push({sender:'broker', text:val});
+    input.value = '';
+    renderChatMessages();
   }
 
-  if(chatInput){
-    chatInput.addEventListener('keydown', e=>{ if(e.key === 'Enter') sendBrokerMsg(); });
+  function sendCustomerMsg(){
+    const input = document.getElementById('customerChatInput');
+    const val = input.value.trim();
+    if(!val) return;
+    chatMessages.push({sender:'customer', text:val});
+    input.value = '';
+    renderChatMessages();
   }
 
-  /* ---------------- Canvas: combinable customer data ---------------- */
+  ['chatInput','customerChatInput'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('keydown', e=>{
+      if(e.key === 'Enter') (id === 'chatInput' ? sendBrokerMsg : sendCustomerMsg)();
+    });
+  });
+
+  /* ---------------- Canvas: combinable customer data (synced, line chart) ---------------- */
   const dataChips = [
     {id:'age', label:'อายุ', detail:'35 ปี', before:8, afterBoost:2},
     {id:'income', label:'รายได้เฉลี่ย/เดือน', detail:'28,000 บาท', before:12, afterBoost:5},
@@ -1185,6 +1199,7 @@
     {id:'loan', label:'ภาระผ่อนบ้าน/สินเชื่อ', detail:'มี', before:9, afterBoost:10},
   ];
   const selectedChipIds = new Set();
+  let chartPeriod = 'month'; // 'month' | 'year'
 
   function toggleDataChip(id){
     if(selectedChipIds.has(id)) selectedChipIds.delete(id);
@@ -1193,28 +1208,49 @@
     renderCanvasResult();
   }
 
-  function renderChipGrid(){
-    const el = document.getElementById('dataChipGrid');
-    if(!el) return;
-    el.innerHTML = '';
-    dataChips.forEach(chip=>{
-      const btn = document.createElement('button');
-      const isSel = selectedChipIds.has(chip.id);
-      btn.className = 'data-chip' + (isSel ? ' selected' : '');
-      btn.innerHTML = `${isSel ? '✓ ' : '+ '}${chip.label} <span class="chip-detail">${chip.detail}</span>`;
-      btn.addEventListener('click', ()=> toggleDataChip(chip.id));
-      el.appendChild(btn);
-    });
+  function setChartPeriod(period){
+    chartPeriod = period;
+    const mBtn = document.getElementById('periodBtnMonth');
+    const yBtn = document.getElementById('periodBtnYear');
+    if(mBtn) mBtn.classList.toggle('active', period === 'month');
+    if(yBtn) yBtn.classList.toggle('active', period === 'year');
+    renderCanvasResult();
   }
 
-  function renderCanvasResult(){
-    const resultEl = document.getElementById('canvasResult');
-    const summaryEl = document.getElementById('canvasSummary');
-    if(selectedChipIds.size === 0){
-      resultEl.innerHTML = '<p class="empty-note">เลือกข้อมูลด้านบนอย่างน้อย 1 รายการ เพื่อเริ่มคำนวณ</p>';
-      summaryEl.textContent = 'ยังไม่มีข้อมูลที่เลือก';
-      return;
+  function renderChipGrid(){
+    renderChipGridInto('dataChipGrid', true);
+    renderChipGridInto('dataChipGridReadonly', false);
+  }
+
+  function renderChipGridInto(containerId, interactive){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    el.innerHTML = '';
+    if(interactive){
+      dataChips.forEach(chip=>{
+        const isSel = selectedChipIds.has(chip.id);
+        const btn = document.createElement('button');
+        btn.className = 'data-chip' + (isSel ? ' selected' : '');
+        btn.innerHTML = `${isSel ? '✓ ' : '+ '}${chip.label} <span class="chip-detail">${chip.detail}</span>`;
+        btn.addEventListener('click', ()=> toggleDataChip(chip.id));
+        el.appendChild(btn);
+      });
+    } else {
+      if(selectedChipIds.size === 0){
+        el.innerHTML = '<p class="empty-note">ที่ปรึกษายังไม่ได้เลือกข้อมูลเพื่อคำนวณ</p>';
+        return;
+      }
+      dataChips.forEach(chip=>{
+        if(!selectedChipIds.has(chip.id)) return;
+        const tag = document.createElement('div');
+        tag.className = 'data-chip selected';
+        tag.innerHTML = `✓ ${chip.label} <span class="chip-detail">${chip.detail}</span>`;
+        el.appendChild(tag);
+      });
     }
+  }
+
+  function computeBaseScores(){
     let before = 0, boost = 0;
     selectedChipIds.forEach(id=>{
       const chip = dataChips.find(c => c.id === id);
@@ -1222,22 +1258,88 @@
     });
     before = Math.min(before, 100);
     const after = Math.min(before + boost, 100);
+    return {before, after};
+  }
+
+  function buildSeries(before, after, period){
+    const count = period === 'month' ? 12 : 5;
+    const labels = [], beforeSeries = [], afterSeries = [];
+    for(let i = 0; i < count; i++){
+      if(period === 'month'){
+        labels.push('ด' + (i + 1));
+        beforeSeries.push(Math.max(0, before - i * 0.9));
+        afterSeries.push(Math.min(100, after + i * 0.6));
+      } else {
+        labels.push('ปี' + (i + 1));
+        beforeSeries.push(Math.max(0, before - i * 4.5));
+        afterSeries.push(Math.min(100, after + i * 3.2));
+      }
+    }
+    return {labels, beforeSeries, afterSeries};
+  }
+
+  function buildLineChartSVG(beforeSeries, afterSeries, labels){
+    const w = 520, h = 190, padL = 30, padR = 12, padT = 12, padB = 24;
+    const innerW = w - padL - padR, innerH = h - padT - padB;
+    const stepX = innerW / (labels.length - 1);
+    const toXY = (v, i) => [padL + i * stepX, padT + innerH - (v / 100) * innerH];
+
+    let grid = '';
+    [0, 25, 50, 75, 100].forEach(v=>{
+      const y = padT + innerH - (v / 100) * innerH;
+      grid += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#E1E3F0" stroke-width="1"/>`;
+      grid += `<text x="${padL - 6}" y="${y + 3}" font-size="8.5" fill="#9096AC" text-anchor="end" font-family="IBM Plex Mono, monospace">${v}</text>`;
+    });
+
+    let xLabels = '';
+    labels.forEach((lb, i)=>{
+      const [x] = toXY(0, i);
+      xLabels += `<text x="${x}" y="${h - 6}" font-size="8.5" fill="#9096AC" text-anchor="middle" font-family="IBM Plex Mono, monospace">${lb}</text>`;
+    });
+
+    const beforePts = beforeSeries.map((v, i)=> toXY(v, i).join(',')).join(' ');
+    const afterPts = afterSeries.map((v, i)=> toXY(v, i).join(',')).join(' ');
+    const beforeDots = beforeSeries.map((v, i)=>{ const [x,y] = toXY(v,i); return `<circle cx="${x}" cy="${y}" r="2.6" fill="#FFB454"/>`; }).join('');
+    const afterDots = afterSeries.map((v, i)=>{ const [x,y] = toXY(v,i); return `<circle cx="${x}" cy="${y}" r="2.6" fill="#43D9A3"/>`; }).join('');
+
+    return `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; display:block;">
+      ${grid}
+      <polyline points="${beforePts}" fill="none" stroke="#FFB454" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="${afterPts}" fill="none" stroke="#43D9A3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${beforeDots}${afterDots}
+      ${xLabels}
+    </svg>`;
+  }
+
+  function renderCanvasResultInto(resultId, summaryId){
+    const resultEl = document.getElementById(resultId);
+    const summaryEl = document.getElementById(summaryId);
+    if(!resultEl || !summaryEl) return;
+    if(selectedChipIds.size === 0){
+      resultEl.innerHTML = '<p class="empty-note">เลือกข้อมูลด้านบนอย่างน้อย 1 รายการ เพื่อเริ่มคำนวณ</p>';
+      summaryEl.textContent = 'ยังไม่มีข้อมูลที่เลือก';
+      return;
+    }
+    const {before, after} = computeBaseScores();
+    const {labels, beforeSeries, afterSeries} = buildSeries(before, after, chartPeriod);
+    const svg = buildLineChartSVG(beforeSeries, afterSeries, labels);
 
     resultEl.innerHTML = `
-      <div class="compare-bars">
-        <div class="compare-col">
-          <div class="compare-bar-track"><div class="compare-bar-fill before" style="height:${before}%;"></div></div>
-          <div class="compare-num">${before}</div>
-          <div class="compare-label">ก่อนซื้อประกัน</div>
-        </div>
-        <div class="compare-col">
-          <div class="compare-bar-track"><div class="compare-bar-fill after" style="height:${after}%;"></div></div>
-          <div class="compare-num">${after}</div>
-          <div class="compare-label">หลังซื้อประกัน</div>
-        </div>
+      ${svg}
+      <div class="chart-legend">
+        <span><span class="dot" style="background:var(--amber);"></span>ก่อนซื้อประกัน</span>
+        <span><span class="dot" style="background:var(--green);"></span>หลังซื้อประกัน</span>
       </div>`;
 
-    summaryEl.innerHTML = `<b>สรุป:</b> จากข้อมูลที่เลือก ${selectedChipIds.size} รายการ ความพร้อมรับมือความเสี่ยงอยู่ที่ <b>${before}/100</b> ก่อนซื้อประกัน และเพิ่มขึ้นเป็น <b>${after}/100</b> (+${after - before}) หากซื้อความคุ้มครองที่ระบบแนะนำ`;
+    const periodLabel = chartPeriod === 'month' ? '12 เดือนข้างหน้า' : '5 ปีข้างหน้า';
+    const endBefore = Math.round(beforeSeries[beforeSeries.length - 1]);
+    const endAfter = Math.round(afterSeries[afterSeries.length - 1]);
+    summaryEl.innerHTML = `<b>สรุป:</b> จากข้อมูลที่เลือก ${selectedChipIds.size} รายการ มองไปข้างหน้า ${periodLabel} ความพร้อมรับมือความเสี่ยงแบบไม่มีประกันมีแนวโน้มลดลงเหลือประมาณ <b>${endBefore}/100</b> ขณะที่หากซื้อความคุ้มครองที่แนะนำจะอยู่ที่ประมาณ <b>${endAfter}/100</b> ต่างกันถึง ${endAfter - endBefore} แต้ม`;
+  }
+
+  function renderCanvasResult(){
+    renderCanvasResultInto('canvasResult', 'canvasSummary');
+    renderCanvasResultInto('canvasResultReadonly', 'canvasSummaryReadonly');
   }
 
   /* ---------------- Risk Simulator ---------------- */
@@ -1544,6 +1646,7 @@
   syncProfile('broker');
   renderDiaryList();
   renderDiaryNotes();
+  renderChatMessages();
   renderChipGrid();
   renderCanvasResult();
 </script>
