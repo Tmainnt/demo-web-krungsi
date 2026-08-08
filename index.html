@@ -56,13 +56,20 @@
     white-space:nowrap;
   }
   .brand .mark{
-    width:30px; height:30px;
+    width:50px; height:50px;
     display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(135deg, var(--amber), #FF8A4C);
     border-radius:8px;
     font-size:15px;
     transform:rotate(-8deg);
   }
+
+  .brand .mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
   .brand .risk{
     color: #000;
   }
@@ -350,6 +357,38 @@
   }
   .flag-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
 
+  /* ---------- AI Customer Analysis ---------- */
+  .analysis-hero{
+    display:flex; align-items:center; gap:14px;
+    background:linear-gradient(135deg, var(--navy-0), var(--navy-2));
+    border-radius:14px; padding:20px 22px; color:#fff; margin-bottom:16px;
+  }
+  .analysis-avatar{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:20px; font-weight:700;
+  }
+  .analysis-hero-name{font-family:var(--font-display); font-size:18px; font-weight:700;}
+  .analysis-hero-sub{font-size:12px; color:rgba(255,255,255,0.6); margin-top:2px;}
+  .ai-tag{
+    margin-left:auto; flex-shrink:0;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em;
+    background:rgba(255,180,84,0.18); color:var(--amber);
+    border:1px solid rgba(255,180,84,0.4);
+    padding:5px 11px; border-radius:20px; white-space:nowrap;
+  }
+  .category-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:14px;}
+  .category-head{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px;}
+  .category-head h3{font-family:var(--font-display); font-size:16px; font-weight:700;}
+  .category-match{font-family:var(--font-mono); font-size:21px; font-weight:700; flex-shrink:0;}
+  .category-reason{font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; line-height:1.6; padding-bottom:14px; border-bottom:1px dashed var(--border);}
+  .product-mini-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:10px;}
+  .product-mini-card{background:var(--surface-alt); border-radius:10px; padding:14px;}
+  .product-mini-card .pname{font-size:13px; font-weight:700; margin-bottom:5px;}
+  .product-mini-card .pmatch{font-family:var(--font-mono); font-size:11.5px; font-weight:700; margin-bottom:6px;}
+  .product-mini-card .pprice{font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); margin-bottom:6px;}
+  .product-mini-card .pblurb{font-size:11.3px; color:var(--ink-soft); line-height:1.5;}
+
   /* ---------- Chat page ---------- */
   .chat-layout{display:grid; grid-template-columns:340px 1fr; gap:16px; height:560px;}
   .chat-panel{background:var(--card); border:1px solid var(--border); border-radius:12px; display:flex; flex-direction:column; overflow:hidden;}
@@ -603,7 +642,12 @@
 <!-- ============ AUTH SCREEN ============ -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
-    <div class="brand" style="justify-content:center; margin-bottom:26px;"><span class="mark">✈</span> <span class="risk">RiskLens</span></div>
+    <div class="brand" style="justify-content:center; margin-bottom:26px;">
+    <span class="mark">
+        <img src="assets/logo2.png" alt="RiskLens">
+    </span>
+    <span class="risk">RiskLens</span>
+  </div>
 
     <div id="loginView">
       <h2>เข้าสู่ระบบ</h2>
@@ -639,7 +683,12 @@
 <!-- ============ APP ROOT ============ -->
 <div id="appRoot" style="display:none;">
 <div class="topbar">
-  <div class="brand"><span class="mark">✈</span> RiskLens</div>
+  <div class="brand">
+    <span class="mark">
+        <img src="assets/logo2.png" alt="RiskLens">
+    </span>
+    <span>RiskLens</span>
+</div>
   <div class="app-switch">
     <button class="active" data-app="broker">Broker</button>
     <button data-app="customer">Customer</button>
@@ -704,13 +753,52 @@
     <section class="page" id="b-customers">
       <div class="page-head">
         <h1>Customers</h1>
-        <p>คลิกที่รายชื่อเพื่อดู RiskLens และคำแนะนำสำหรับลูกค้าแต่ละราย</p>
+        <p>คลิกที่รายชื่อเพื่อดูผลวิเคราะห์ AI ว่าลูกค้าแต่ละรายเหมาะกับประกันประเภทไหน</p>
       </div>
       <div class="card">
         <table id="customerTable">
           <thead><tr><th>ชื่อ</th><th>Segment</th><th>Runway</th><th>Match สูงสุด</th><th>สถานะ</th></tr></thead>
           <tbody id="customerTbody"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- ============ BROKER: AI CUSTOMER ANALYSIS ============ -->
+    <section class="page" id="b-customer-analysis">
+      <div class="page-head">
+        <button class="btn btn-ghost btn-sm" onclick="goPage('b-customers')" style="margin-bottom:14px;">← กลับไปหน้ารายชื่อลูกค้า</button>
+        <h1>ผลวิเคราะห์ AI — ประกันที่เหมาะกับลูกค้า</h1>
+        <p>AI วิเคราะห์จากข้อมูลทางการเงินและข้อมูลลูกค้าที่มี เพื่อแนะนำประเภทประกันและสินค้าที่เหมาะสมที่สุด</p>
+      </div>
+
+      <div class="analysis-hero">
+        <div class="analysis-avatar" id="analysisAvatar">-</div>
+        <div>
+          <div class="analysis-hero-name" id="analysisCustomerName">-</div>
+          <div class="analysis-hero-sub" id="analysisCustomerSub">-</div>
+        </div>
+        <span class="ai-tag">✦ AI Matching Engine</span>
+      </div>
+
+      <div class="grid grid-3" style="margin-bottom:16px;">
+        <div class="card"><div class="card-title">Segment</div><div id="analysisSeg" style="font-size:17px; font-weight:700;">-</div></div>
+        <div class="card"><div class="card-title">Risk Runway</div><div id="analysisRunway" class="stat-num">-</div></div>
+        <div class="card"><div class="card-title">ความคุ้มครองปัจจุบัน</div><div id="analysisCoverage" style="font-size:14px; font-weight:600; margin-top:6px;">-</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">ปัจจัยความเสี่ยงที่ AI ตรวจพบ</div>
+        <div id="analysisRiskFactors"></div>
+      </div>
+
+      <div class="page-head" style="margin-bottom:12px;">
+        <h1 style="font-size:19px;">ประเภทประกันที่เหมาะสม เรียงตามคะแนน Match</h1>
+      </div>
+      <div id="analysisCategories"></div>
+
+      <div style="margin-top:6px; display:flex; gap:10px;">
+        <button class="btn btn-amber" onclick="goPage('b-chat')">เปิด Chat กับลูกค้ารายนี้</button>
+        <button class="btn btn-ghost" onclick="goPage('b-diary')">ดู Diary ลูกค้ารายนี้</button>
       </div>
     </section>
 
@@ -1111,12 +1199,103 @@
 
   /* ---------------- Customer table (Broker app) ---------------- */
   const customers = [
-    {name:'คุณกันต์ พรหมมา', seg:'Freelance', runway:2, match:88, status:'Payment Risk'},
-    {name:'คุณศิริพร ใจดี', seg:'พนักงานเงินเดือน', runway:8, match:91, status:'ใกล้ต่ออายุ'},
-    {name:'คุณธนกร วงศ์ไทย', seg:'Freelance', runway:5, match:84, status:'Life-event'},
-    {name:'คุณปวีณา สายชล', seg:'SME', runway:9, match:76, status:'ปกติ'},
-    {name:'คุณอรรถพล ทองดี', seg:'พนักงานเงินเดือน', runway:7, match:80, status:'ปกติ'},
-    {name:'คุณมนัสวี เพียรกิจ', seg:'Freelance', runway:3, match:89, status:'ใกล้ต่ออายุ'},
+    {
+      id:'kant', name:'คุณกันต์ พรหมมา', seg:'Freelance', runway:2, match:91, status:'Payment Risk',
+      age:35, occupation:'ฟรีแลนซ์กราฟิกดีไซน์', existingCoverage:'ไม่มีความคุ้มครองใดๆ',
+      riskFactors:['รายได้ผันผวนสูง ไม่มีสวัสดิการนายจ้าง','Risk Runway เหลือเพียง 2 เดือน','เคยประสบอุบัติเหตุมาก่อน 1 ครั้ง'],
+      categories:[
+        {name:'ประกันสุขภาพ', match:91, reason:'ไม่มีสวัสดิการสุขภาพจากนายจ้างและยังไม่มีความคุ้มครองด้านนี้เลย ความเสี่ยงค่ารักษาพยาบาลก้อนใหญ่จึงตกอยู่ที่ลูกค้าทั้งหมด', products:[
+          {name:'ใจอุ่น พลัส', match:91, price:'1,450 บาท/เดือน', blurb:'คุ้มครอง OPD/IPD ครอบคลุม เหมาะกับฟรีแลนซ์ที่ไม่มีประกันกลุ่มจากนายจ้าง'},
+          {name:'สุขภาพดี Basic', match:78, price:'890 บาท/เดือน', blurb:'เบี้ยประหยัดกว่า เหมาะเป็นจุดเริ่มต้นถ้างบยังจำกัด'}
+        ]},
+        {name:'ประกันรายได้ (Income Protection)', match:85, reason:'รายได้ผันผวนสูงและ Risk Runway เหลือเพียง 2 เดือน หากหยุดงานกะทันหันจะกระทบสภาพคล่องทันที', products:[
+          {name:'Income Shield', match:85, price:'650 บาท/เดือน', blurb:'ชดเชยรายได้ระหว่างหยุดงานจากเจ็บป่วยหรืออุบัติเหตุ'}
+        ]},
+        {name:'ประกันอุบัติเหตุ', match:74, reason:'มีประวัติเคยประสบอุบัติเหตุมาก่อน 1 ครั้ง ควรมีความคุ้มครองรองรับไว้', products:[
+          {name:'PA คุ้มครองรอบด้าน', match:74, price:'350 บาท/เดือน', blurb:'คุ้มครองอุบัติเหตุทั่วไป วงเงินสูงสุด 500,000 บาท'}
+        ]}
+      ]
+    },
+    {
+      id:'siriporn', name:'คุณศิริพร ใจดี', seg:'พนักงานเงินเดือน', runway:8, match:91, status:'ใกล้ต่ออายุ',
+      age:41, occupation:'พนักงานบริษัทเอกชน', existingCoverage:'ประกันสุขภาพ (ใกล้หมดอายุใน 12 วัน)',
+      riskFactors:['กรมธรรม์สุขภาพเดิมใกล้หมดอายุ','ยังไม่มีความคุ้มครองโรคร้ายแรง','เป็นเสาหลักของครอบครัว'],
+      categories:[
+        {name:'ประกันสุขภาพ (ต่ออายุ/อัปเกรด)', match:91, reason:'กรมธรรม์เดิมใกล้หมดอายุ เป็นโอกาสเทียบแผนใหม่ที่คุ้มครองมากกว่าในราคาที่ใกล้เคียงเดิม', products:[
+          {name:'สุขภาพดี B (แผนใหม่)', match:91, price:'1,410 บาท/เดือน', blurb:'วงเงินคุ้มครองสูงกว่าแผนเดิม 20% ในเบี้ยที่ใกล้เคียงกัน'}
+        ]},
+        {name:'ประกันโรคร้ายแรง', match:82, reason:'ยังไม่มีความคุ้มครองกลุ่มโรคร้ายแรง ซึ่งมีค่าใช้จ่ายรักษาสูงและกระทบรายได้ระยะยาว', products:[
+          {name:'Critical Care 3 โรคหลัก', match:82, price:'980 บาท/เดือน', blurb:'จ่ายเป็นเงินก้อนทันทีเมื่อตรวจพบ 3 กลุ่มโรคร้ายแรงหลัก'}
+        ]},
+        {name:'ประกันชีวิต', match:76, reason:'เป็นเสาหลักของครอบครัว ควรมีความคุ้มครองชีวิตรองรับภาระที่ต้องดูแล', products:[
+          {name:'ชีวิต มั่นคง 20/20', match:76, price:'1,200 บาท/เดือน', blurb:'ชำระเบี้ย 20 ปี คุ้มครอง 20 ปี วงเงิน 1,000,000 บาท'}
+        ]}
+      ]
+    },
+    {
+      id:'thanakorn', name:'คุณธนกร วงศ์ไทย', seg:'Freelance', runway:5, match:88, status:'Life-event',
+      age:33, occupation:'ฟรีแลนซ์ถ่ายภาพ', existingCoverage:'ประกันอุบัติเหตุส่วนบุคคล',
+      riskFactors:['ตรวจพบธุรกรรมเกี่ยวกับบ้านเมื่อเร็วๆ นี้','ยังไม่มีประกันบ้าน/อัคคีภัย','รายได้ไม่สม่ำเสมอแบบฟรีแลนซ์'],
+      categories:[
+        {name:'ประกันอัคคีภัย/บ้าน', match:88, reason:'ตรวจพบสัญญาณธุรกรรมเกี่ยวกับบ้านเมื่อเร็วๆ นี้ ยังไม่มีความคุ้มครองทรัพย์สินส่วนนี้เลย', products:[
+          {name:'บ้านอุ่นใจ A', match:88, price:'450 บาท/เดือน', blurb:'คุ้มครองไฟไหม้ ภัยธรรมชาติ และทรัพย์สินภายในบ้าน'}
+        ]},
+        {name:'ประกันสุขภาพ', match:80, reason:'เป็นฟรีแลนซ์ไม่มีสวัสดิการนายจ้าง ควรมีความคุ้มครองสุขภาพพื้นฐานรองรับ', products:[
+          {name:'สุขภาพดี Basic', match:80, price:'890 บาท/เดือน', blurb:'คุ้มครอง OPD/IPD ระดับพื้นฐานในเบี้ยที่จับต้องได้'}
+        ]},
+        {name:'ประกันรายได้ (Income Protection)', match:71, reason:'รายได้ไม่สม่ำเสมอตามลักษณะงานฟรีแลนซ์ Risk Runway อยู่ระดับปานกลาง', products:[
+          {name:'Income Shield', match:71, price:'650 บาท/เดือน', blurb:'ชดเชยรายได้ระหว่างหยุดงานจากเจ็บป่วยหรืออุบัติเหตุ'}
+        ]}
+      ]
+    },
+    {
+      id:'paweena', name:'คุณปวีณา สายชล', seg:'SME', runway:9, match:79, status:'ปกติ',
+      age:44, occupation:'เจ้าของร้านค้าปลีกขนาดเล็ก', existingCoverage:'ประกันรถยนต์ชั้น 1',
+      riskFactors:['ธุรกิจพึ่งพารายได้เจ้าของคนเดียวเป็นหลัก','ยังไม่มีประกันคุ้มครองการหยุดชะงักธุรกิจ','สินทรัพย์ร้านค้ายังไม่มีความคุ้มครอง'],
+      categories:[
+        {name:'ประกันธุรกิจหยุดชะงัก (Business Interruption)', match:79, reason:'ธุรกิจพึ่งพารายได้จากเจ้าของเป็นหลัก หากหยุดดำเนินกิจการกะทันหันจะกระทบกระแสเงินสดทันที', products:[
+          {name:'Biz Continuity Plan', match:79, price:'1,650 บาท/เดือน', blurb:'ชดเชยรายได้ธุรกิจระหว่างหยุดดำเนินการจากเหตุไม่คาดฝัน'}
+        ]},
+        {name:'ประกันทรัพย์สิน/ร้านค้า', match:75, reason:'สินทรัพย์และสต๊อกสินค้าในร้านยังไม่มีความคุ้มครองใดๆ', products:[
+          {name:'ร้านค้าอุ่นใจ', match:75, price:'980 บาท/เดือน', blurb:'คุ้มครองอาคาร อุปกรณ์ และสต๊อกสินค้าจากไฟไหม้/โจรกรรม'}
+        ]},
+        {name:'ประกันสุขภาพ', match:68, reason:'เจ้าของธุรกิจ SME มักไม่มีสวัสดิการเหมือนพนักงานประจำ', products:[
+          {name:'สุขภาพดี Basic', match:68, price:'890 บาท/เดือน', blurb:'คุ้มครอง OPD/IPD ระดับพื้นฐาน'}
+        ]}
+      ]
+    },
+    {
+      id:'attapon', name:'คุณอรรถพล ทองดี', seg:'พนักงานเงินเดือน', runway:7, match:80, status:'ปกติ',
+      age:38, occupation:'พนักงานบริษัทเอกชน', existingCoverage:'ประกันสุขภาพกลุ่มจากบริษัท',
+      riskFactors:['ความคุ้มครองจากบริษัทมีเพดานวงเงินจำกัด','ยังไม่มีประกันชีวิตส่วนตัว','มีภาระผ่อนบ้าน/สินเชื่อ'],
+      categories:[
+        {name:'ประกันสุขภาพ Top-up', match:80, reason:'ความคุ้มครองจากบริษัทมีเพดานวงเงินจำกัด หากเจ็บป่วยหนักอาจไม่พอ', products:[
+          {name:'Health Top-up Plus', match:80, price:'560 บาท/เดือน', blurb:'เสริมวงเงินคุ้มครองส่วนที่เกินจากประกันกลุ่มบริษัท'}
+        ]},
+        {name:'ประกันชีวิต', match:77, reason:'มีภาระผ่อนบ้าน/สินเชื่อ แต่ยังไม่มีความคุ้มครองชีวิตส่วนตัวรองรับภาระนี้', products:[
+          {name:'ชีวิต มั่นคง 20/20', match:77, price:'1,200 บาท/เดือน', blurb:'คุ้มครองวงเงินครอบคลุมภาระหนี้สินคงเหลือ'}
+        ]},
+        {name:'ประกันอุบัติเหตุ', match:70, reason:'ยังไม่มีความคุ้มครองอุบัติเหตุส่วนบุคคลเพิ่มเติมจากประกันกลุ่ม', products:[
+          {name:'PA คุ้มครองรอบด้าน', match:70, price:'350 บาท/เดือน', blurb:'คุ้มครองอุบัติเหตุทั่วไป วงเงินสูงสุด 500,000 บาท'}
+        ]}
+      ]
+    },
+    {
+      id:'manatsawee', name:'คุณมนัสวี เพียรกิจ', seg:'Freelance', runway:3, match:89, status:'ใกล้ต่ออายุ',
+      age:29, occupation:'ฟรีแลนซ์ล่ามและติวเตอร์ภาษา', existingCoverage:'ประกันเดินทาง (อยู่ระหว่างพิจารณายกเลิก)',
+      riskFactors:['Risk Runway เหลือเพียง 3 เดือน','งานเดินทางบ่อยตามรอบงานล่าม','ไม่มีความคุ้มครองสุขภาพหลัก'],
+      categories:[
+        {name:'ประกันสุขภาพ', match:89, reason:'ไม่มีความคุ้มครองสุขภาพหลักเลย และ Risk Runway อยู่ในระดับที่ต้องระวัง', products:[
+          {name:'ใจอุ่น พลัส', match:89, price:'1,450 บาท/เดือน', blurb:'คุ้มครอง OPD/IPD ครอบคลุม เหมาะกับฟรีแลนซ์'}
+        ]},
+        {name:'ประกันรายได้ (Income Protection)', match:83, reason:'Risk Runway เหลือเพียง 3 เดือน รายได้จากงานล่ามไม่สม่ำเสมอ', products:[
+          {name:'Income Shield', match:83, price:'650 บาท/เดือน', blurb:'ชดเชยรายได้ระหว่างหยุดงานจากเจ็บป่วยหรืออุบัติเหตุ'}
+        ]},
+        {name:'ประกันเดินทาง', match:72, reason:'มีงานเดินทางบ่อยตามรอบงานล่าม ควรพิจารณาแผนที่เหมาะกับความถี่การเดินทางจริง แทนกรมธรรม์เดิมที่กำลังจะยกเลิก', products:[
+          {name:'Travel Frequent Flyer', match:72, price:'420 บาท/เดือน', blurb:'ออกแบบสำหรับผู้เดินทางบ่อย คุ้มครองรายเที่ยวอัตโนมัติ'}
+        ]}
+      ]
+    },
   ];
   const statusBadge = s=>{
     if(s==='Payment Risk') return '<span class="badge coral">Payment Risk</span>';
@@ -1125,6 +1304,7 @@
     return '<span class="badge navy">ปกติ</span>';
   };
   const runwayColor = m => m<=3 ? 'var(--coral)' : (m<=6 ? 'var(--amber)' : 'var(--green)');
+  const matchColor = m => m>=85 ? 'var(--green)' : (m>=70 ? 'var(--amber)' : 'var(--coral)');
   const tbody = document.getElementById('customerTbody');
   customers.forEach(c=>{
     const tr = document.createElement('tr');
@@ -1133,9 +1313,66 @@
       <td style="font-family:var(--font-mono); color:${runwayColor(c.runway)}; font-weight:600;">${c.runway} เดือน</td>
       <td style="font-family:var(--font-mono);">${c.match}%</td>
       <td>${statusBadge(c.status)}</td>`;
-    tr.addEventListener('click', ()=>{ goPage('b-chat'); });
+    tr.addEventListener('click', ()=>{ openCustomerAnalysis(c.id); });
     tbody.appendChild(tr);
   });
+
+  /* ---------------- AI Customer Analysis (Broker) ---------------- */
+  let currentAnalysisCustomer = null;
+
+  function openCustomerAnalysis(id){
+    currentAnalysisCustomer = id;
+    renderCustomerAnalysis();
+    goPage('b-customer-analysis');
+  }
+
+  function renderCustomerAnalysis(){
+    const c = customers.find(x => x.id === currentAnalysisCustomer);
+    if(!c) return;
+
+    document.getElementById('analysisAvatar').textContent = c.name.replace('คุณ','').charAt(0);
+    document.getElementById('analysisCustomerName').textContent = c.name;
+    document.getElementById('analysisCustomerSub').textContent = `${c.occupation} · อายุ ${c.age} ปี · ${c.seg}`;
+    document.getElementById('analysisSeg').textContent = c.seg;
+    const runwayEl = document.getElementById('analysisRunway');
+    runwayEl.textContent = c.runway + ' เดือน';
+    runwayEl.style.color = runwayColor(c.runway);
+    document.getElementById('analysisCoverage').textContent = c.existingCoverage;
+
+    const riskEl = document.getElementById('analysisRiskFactors');
+    riskEl.innerHTML = '';
+    (c.riskFactors || []).forEach(f=>{
+      const row = document.createElement('div');
+      row.className = 'flag-row';
+      row.innerHTML = `<span class="flag-dot" style="background:var(--coral);"></span>${f}`;
+      riskEl.appendChild(row);
+    });
+
+    const catEl = document.getElementById('analysisCategories');
+    catEl.innerHTML = '';
+    (c.categories || []).slice().sort((a,b)=> b.match - a.match).forEach(cat=>{
+      const card = document.createElement('div');
+      card.className = 'category-card';
+      let productsHtml = '';
+      cat.products.forEach(p=>{
+        productsHtml += `
+          <div class="product-mini-card">
+            <div class="pname">${p.name}</div>
+            <div class="pmatch" style="color:${matchColor(p.match)};">Match ${p.match}%</div>
+            <div class="pprice">${p.price}</div>
+            <div class="pblurb">${p.blurb}</div>
+          </div>`;
+      });
+      card.innerHTML = `
+        <div class="category-head">
+          <h3>${cat.name}</h3>
+          <span class="category-match" style="color:${matchColor(cat.match)};">${cat.match}%</span>
+        </div>
+        <div class="category-reason">${cat.reason}</div>
+        <div class="product-mini-grid">${productsHtml}</div>`;
+      catEl.appendChild(card);
+    });
+  }
 
   /* ---------------- Chat (synced, broker <-> customer) ---------------- */
   let chatMessages = [
