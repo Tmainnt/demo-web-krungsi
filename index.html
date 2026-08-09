@@ -715,15 +715,15 @@
 
   <div class="sidebar" id="sidebarCustomer" style="display:none;">
     <div class="eyebrow">My Account</div>
-    <button class="nav-item active" data-page="c-home"><span class="ic">◧</span> หน้าแรก</button>
-    <button class="nav-item" data-page="c-policies"><span class="ic">▤</span> กรมธรรม์ของฉัน</button>
+    <button class="nav-item active" data-page="c-home"><span class="ic">◧</span> Dashboard</button>
+    <button class="nav-item" data-page="c-policies"><span class="ic">▤</span> Insurance Policy</button>
     <button class="nav-item" data-page="c-simulator"><span class="ic">📈</span> Risk Simulator</button>
-    <button class="nav-item" data-page="c-claims"><span class="ic">◐</span> การเคลม</button>
-    <button class="nav-item" data-page="c-broker-chat"><span class="ic">💬</span> คุยกับที่ปรึกษา</button>
+    <button class="nav-item" data-page="c-claims"><span class="ic">◐</span> Claims</button>
+    <button class="nav-item" data-page="c-broker-chat"><span class="ic">💬</span> Chat</button>
     <button class="nav-item" data-page="c-timeline"><span class="ic">◔</span> Life Timeline</button>
     <div class="eyebrow" style="margin-top:16px;">Support</div>
-    <button class="nav-item" data-page="c-faq"><span class="ic">?</span> คำถามที่พบบ่อย</button>
-    <button class="nav-item" data-page="c-chat"><span class="ic">◐</span> แชทกับผู้ช่วย</button>
+    <button class="nav-item" data-page="c-faq"><span class="ic">?</span> FAQ</button>
+    <button class="nav-item" data-page="c-chat"><span class="ic">◐</span> AI Help Center</button>
   </div>
 
   <!-- ===================== MAIN ===================== -->
@@ -806,7 +806,7 @@
     <section class="page" id="b-chat">
       <div class="page-head">
         <h1>Chat + Interactive Canvas</h1>
-        <p>พิมพ์คุยกับลูกค้าได้จริง — ข้อมูลที่เลือกใน Canvas จะซิงค์ไปแสดงในหน้า "คุยกับที่ปรึกษา" ของลูกค้าทันที</p>
+        <p>พิมพ์คุยกับลูกค้าได้จริง — ข้อมูลที่เลือกใน Canvas จะซิงค์ไปแสดงในหน้า "Chat" ของลูกค้าทันที</p>
       </div>
       <div class="chat-layout">
         <div class="chat-panel">
@@ -951,7 +951,7 @@
 
     <!-- ============ CUSTOMER: POLICIES ============ -->
     <section class="page" id="c-policies">
-      <div class="page-head"><h1>กรมธรรม์ของฉัน</h1><p>ดูรายละเอียดและทำรายการต่อ/เปลี่ยน/ยกเลิกได้ด้วยตัวเอง</p></div>
+      <div class="page-head"><h1>Insurance Policy</h1><p>ดูรายละเอียดและทำรายการต่อ/เปลี่ยน/ยกเลิกได้ด้วยตัวเอง</p></div>
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
@@ -1028,7 +1028,7 @@
 
     <!-- ============ CUSTOMER: CLAIMS ============ -->
     <section class="page" id="c-claims">
-      <div class="page-head"><h1>การเคลม</h1><p>เริ่มเคลมใหม่หรือติดตามสถานะที่ยื่นไปแล้ว</p></div>
+      <div class="page-head"><h1>Claims</h1><p>เริ่มเคลมใหม่หรือติดตามสถานะที่ยื่นไปแล้ว</p></div>
       <div class="card" style="margin-bottom:16px;">
         <button class="btn btn-amber">+ เริ่มเคลมใหม่</button>
       </div>
@@ -1047,7 +1047,7 @@
     <!-- ============ CUSTOMER: CHAT WITH ADVISOR (chat live, canvas read-only) ============ -->
     <section class="page" id="c-broker-chat">
       <div class="page-head">
-        <h1>คุยกับที่ปรึกษา</h1>
+        <h1>Chat</h1>
         <p>พิมพ์คุยกับที่ปรึกษาได้ตามปกติ ส่วนข้อมูลใน Canvas จะซิงค์ตามที่ที่ปรึกษาเลือกไว้แบบเรียลไทม์</p>
       </div>
       <div class="chat-layout">
@@ -1102,13 +1102,13 @@
 
     <!-- ============ CUSTOMER: FAQ ============ -->
     <section class="page" id="c-faq">
-      <div class="page-head"><h1>คำถามที่พบบ่อย</h1><p>หาคำตอบได้เองตลอด 24 ชั่วโมง</p></div>
+      <div class="page-head"><h1>FAQ</h1><p>หาคำตอบได้เองตลอด 24 ชั่วโมง</p></div>
       <div class="card" id="faqList"></div>
     </section>
 
     <!-- ============ CUSTOMER: CHAT SUPPORT ============ -->
     <section class="page" id="c-chat">
-      <div class="page-head"><h1>แชทกับผู้ช่วย</h1><p>ถามคำถามพื้นฐานได้ทันที หากตอบไม่ได้จะส่งต่อเจ้าหน้าที่ให้อัตโนมัติ</p></div>
+      <div class="page-head"><h1>AI Help Center</h1><p>ถามคำถามพื้นฐานได้ทันที หากตอบไม่ได้จะส่งต่อเจ้าหน้าที่ให้อัตโนมัติ</p></div>
       <div class="chat-panel" style="height:480px; max-width:640px;">
         <div class="chat-head">RiskRunway Assistant</div>
         <div class="chat-body" id="botBody">
@@ -1614,8 +1614,8 @@
 
   /* ---------------- FAQ ---------------- */
   const faqData = [
-    {q:'ต้องทำอย่างไรเมื่อต้องการเคลม?', a:'ไปที่เมนู "การเคลม" กดเริ่มเคลมใหม่ เลือกกรมธรรม์ที่เกี่ยวข้อง แล้วทำตามเช็คลิสต์เอกสารที่ระบบแจ้ง ระบบจะติดตามสถานะให้อัตโนมัติ'},
-    {q:'ต่ออายุกรมธรรม์ได้อย่างไร?', a:'ไปที่ "กรมธรรม์ของฉัน" เลือกกรมธรรม์ที่ต้องการ กดปุ่ม "ทำรายการ" แล้วเลือกต่ออายุ คำขอจะถูกส่งให้ broker ตรวจสอบก่อนดำเนินการ'},
+    {q:'ต้องทำอย่างไรเมื่อต้องการเคลม?', a:'ไปที่เมนู "Claims" กดเริ่มเคลมใหม่ เลือกกรมธรรม์ที่เกี่ยวข้อง แล้วทำตามเช็คลิสต์เอกสารที่ระบบแจ้ง ระบบจะติดตามสถานะให้อัตโนมัติ'},
+    {q:'ต่ออายุกรมธรรม์ได้อย่างไร?', a:'ไปที่ "Insurance Policy" เลือกกรมธรรม์ที่ต้องการ กดปุ่ม "ทำรายการ" แล้วเลือกต่ออายุ คำขอจะถูกส่งให้ broker ตรวจสอบก่อนดำเนินการ'},
     {q:'ขอเปลี่ยนที่อยู่หรือผู้รับผลประโยชน์ได้ไหม?', a:'ได้ค่ะ ไปที่รายละเอียดกรมธรรม์แล้วกด "ขอแก้ไขข้อมูล" กรอกข้อมูลใหม่ คำขอจะถูกส่งให้ broker/ธนาคารดำเนินการแล้วแจ้งผลกลับ'},
     {q:'ข้อมูลของฉันปลอดภัยหรือไม่?', a:'ระบบใช้ข้อมูลของคุณเพื่อการวิเคราะห์และให้คำแนะนำเท่านั้น ไม่ใช้ตัดสินใจแทนคุณ และต้องได้รับความยินยอมจากคุณก่อนเสมอตามหลัก PDPA'},
   ];
